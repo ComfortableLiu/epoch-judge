@@ -1,0 +1,31 @@
+{
+  "name": "epoch-judge",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach -Apt run build",
+    "dev": "yarn workspaces foreach --include '{@epoch-judge/api,@epoch-judge/web,@epoch-judge/judge}' -pi run dev",
+    "dev:api": "yarn workspace @epoch-judge/api dev",
+    "dev:web": "yarn workspace @epoch-judge/web dev",
+    "dev:judge": "yarn workspace @epoch-judge/judge dev",
+    "start:api": "yarn workspace @epoch-judge/api start",
+    "start:judge": "yarn workspace @epoch-judge/judge start",
+    "deploy": "bash scripts/deploy.sh",
+    "db:migrate": "yarn workspace @epoch-judge/db migrate:deploy",
+    "db:seed": "yarn workspace @epoch-judge/db seed",
+    "db:setup": "yarn db:migrate && yarn db:seed",
+    "db:sync": "yarn db:migrate",
+    "db:generate": "yarn workspace @epoch-judge/db generate",
+    "lint": "yarn workspaces foreach -Apt run lint",
+    "test": "yarn workspace @epoch-judge/storage test",
+    "smoke": "bash scripts/smoke-test.sh"
+  }
+}

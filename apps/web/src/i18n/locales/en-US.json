@@ -1,0 +1,50 @@
+{
+  "brand": "EpochJudge",
+  "nav": {
+    "home": "Home",
+    "problems": "Problems",
+    "contests": "Contests",
+    "submissions": "Submissions",
+    "settings": "Settings",
+    "admin": "Admin",
+    "login": "Login",
+    "register": "Register",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Open-source Online Judge",
+    "subtitle": "For OI/ACM practice with OI/ACM modes, live judging, and contests."
+  },
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "email": "Email"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
+  },
+  "problems": {
+    "title": "Problems",
+    "submit": "Submit"
+  },
+  "submissions": {
+    "title": "Submissions",
+    "status": "Status",
+    "streaming": "Judging…",
+    "refreshing": "Updating status",
+    "autoUpdateHint": "Submissions being judged refresh automatically.",
+    "colId": "Submission ID",
+    "colProblem": "Problem",
+    "colUser": "User",
+    "colStatus": "Status",
+    "colLanguage": "Language",
+    "colScore": "Score",
+    "colTime": "Submitted at"
+  }
+}

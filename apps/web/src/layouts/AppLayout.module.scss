@@ -1,0 +1,42 @@
+.root {
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--epoch-header-bg) !important;
+  border-bottom: 1px solid var(--epoch-header-border);
+  padding-inline: 24px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+:global([data-theme='dark']) .header {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.menu {
+  flex: 1;
+  border-bottom: none;
+  min-width: 0;
+  background: transparent !important;
+  color: inherit;
+}
+
+.brand {
+  margin: 0 !important;
+  white-space: nowrap;
+  color: #3b5bdb !important;
+}
+
+.headerActions :global(.ant-btn-link) {
+  color: inherit;
+}
+
+.content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}

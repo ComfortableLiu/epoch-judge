@@ -1,0 +1,33 @@
+{
+  "name": "@epoch-judge/judge",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@epoch-judge/db": "workspace:*",
+    "@epoch-judge/judge-sandbox": "workspace:*",
+    "@epoch-judge/redis": "workspace:*",
+    "@epoch-judge/shared": "workspace:*",
+    "@epoch-judge/storage": "workspace:*",
+    "@grpc/grpc-js": "^1.12.6",
+    "@grpc/proto-loader": "^0.7.13",
+    "@nestjs/common": "^11.0.7",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.7",
+    "@nestjs/microservices": "^11.0.7",
+    "bullmq": "^5.34.8",
+    "ioredis": "^5.4.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.2",
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

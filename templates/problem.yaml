@@ -1,0 +1,6 @@
+slug: a-plus-b
+title: A+B Problem
+timeLimitMs: 1000
+memoryLimitKb: 262144
+defaultJudgeMode: ACM
+visibility: PUBLIC

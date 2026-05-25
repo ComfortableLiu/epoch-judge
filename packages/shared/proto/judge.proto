@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package epoch.judge.v1;
+
+service JudgeService {
+  rpc Submit(SubmitRequest) returns (SubmitResponse);
+  rpc WatchStatus(WatchRequest) returns (stream StatusEvent);
+}
+
+message SubmitRequest {
+  string submission_id = 1;
+}
+
+message SubmitResponse {
+  bool accepted = 1;
+}
+
+message WatchRequest {
+  string submission_id = 1;
+}
+
+message StatusEvent {
+  string submission_id = 1;
+  string type = 2;
+  string status = 3;
+  string testcase_id = 4;
+  string verdict = 5;
+  int32 score = 6;
+  int32 time_ms = 7;
+  int32 memory_kb = 8;
+}

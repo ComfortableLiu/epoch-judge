@@ -1,0 +1,50 @@
+{
+  "brand": "纪元 EpochJudge",
+  "nav": {
+    "home": "首页",
+    "problems": "题库",
+    "contests": "比赛",
+    "submissions": "提交记录",
+    "settings": "设置",
+    "admin": "管理",
+    "login": "登录",
+    "register": "注册",
+    "profile": "个人资料",
+    "logout": "退出"
+  },
+  "home": {
+    "title": "开源 OJ 平台",
+    "subtitle": "面向 OI / ACM 刷题用户，支持 OI 与 ACM 评测模式、实时判题与比赛。"
+  },
+  "auth": {
+    "username": "用户名",
+    "password": "密码",
+    "email": "邮箱"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "themeSystem": "跟随系统"
+  },
+  "problems": {
+    "title": "题库",
+    "submit": "提交代码"
+  },
+  "submissions": {
+    "title": "提交记录",
+    "status": "状态",
+    "streaming": "判题中…",
+    "refreshing": "状态更新中",
+    "autoUpdateHint": "判题中的提交会自动刷新，无需手动刷新页面。",
+    "colId": "提交 ID",
+    "colProblem": "题目",
+    "colUser": "提交者",
+    "colStatus": "状态",
+    "colLanguage": "语言",
+    "colScore": "分数",
+    "colTime": "提交时间"
+  }
+}

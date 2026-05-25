@@ -1,0 +1,26 @@
+{
+  "name": "@epoch-judge/db",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "yarn generate && tsc -p tsconfig.json",
+    "generate": "tsx scripts/prisma-cli.ts generate",
+    "migrate:dev": "tsx scripts/prisma-cli.ts migrate dev",
+    "migrate:deploy": "tsx scripts/prisma-cli.ts migrate deploy",
+    "seed": "tsx src/seed.ts",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@epoch-judge/shared": "workspace:*",
+    "@prisma/client": "^6.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^2.4.3",
+    "prisma": "^6.3.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

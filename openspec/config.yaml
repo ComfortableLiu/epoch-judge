@@ -1,0 +1,19 @@
+schema: spec-driven
+
+context: |
+  EpochJudge (纪元) — open-source OJ for OI/ACM.
+  Stack: TypeScript, NestJS, React, Rspack, Yarn 4+, Node 18+.
+  UI: Ant Design (no Tailwind). Icons: @icon-park/react (IconPark official).
+  DB: MySQL + Redis. Test data: local dir default, optional S3.
+  Deploy: one-click script (scripts/deploy.sh), default single-machine judge via Docker Compose.
+  Judge: sandboxed JS/C/C++/Python/Java; OI/ACM modes; SSE + gRPC.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

@@ -1,0 +1,121 @@
+.root {
+  margin-top: 16px;
+  line-height: 1.7;
+  color: inherit;
+  word-break: break-word;
+
+  :global {
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 1.25em 0 0.5em;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0.75em 0;
+    }
+
+    ul,
+    ol {
+      margin: 0.75em 0;
+      padding-left: 1.5em;
+    }
+
+    li + li {
+      margin-top: 0.25em;
+    }
+
+    blockquote {
+      margin: 0.75em 0;
+      padding: 0.25em 0 0.25em 1em;
+      border-left: 3px solid var(--epoch-md-border, #d9d9d9);
+      color: var(--epoch-md-muted, rgba(0, 0, 0, 0.65));
+    }
+
+    code {
+      padding: 0.15em 0.4em;
+      font-size: 0.9em;
+      border-radius: 4px;
+      background: var(--epoch-md-code-bg, rgba(0, 0, 0, 0.06));
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    pre {
+      margin: 0.75em 0;
+      padding: 12px 16px;
+      overflow: auto;
+      border-radius: 8px;
+      background: var(--epoch-md-pre-bg, rgba(0, 0, 0, 0.04));
+      border: 1px solid var(--epoch-md-border, #f0f0f0);
+
+      code {
+        padding: 0;
+        background: transparent;
+        font-size: 0.875rem;
+      }
+    }
+
+    table {
+      width: 100%;
+      margin: 0.75em 0;
+      border-collapse: collapse;
+      font-size: 0.95em;
+    }
+
+    th,
+    td {
+      padding: 8px 12px;
+      border: 1px solid var(--epoch-md-border, #f0f0f0);
+    }
+
+    th {
+      background: var(--epoch-md-table-head, rgba(0, 0, 0, 0.02));
+      font-weight: 600;
+    }
+
+    a {
+      color: #3b5bdb;
+    }
+
+    hr {
+      margin: 1.5em 0;
+      border: none;
+      border-top: 1px solid var(--epoch-md-border, #f0f0f0);
+    }
+
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+.image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.75em 0;
+  border-radius: 8px;
+}
+
+:global([data-theme='dark']) .root {
+  --epoch-md-border: #303030;
+  --epoch-md-muted: rgba(255, 255, 255, 0.65);
+  --epoch-md-code-bg: rgba(255, 255, 255, 0.08);
+  --epoch-md-pre-bg: #141414;
+  --epoch-md-table-head: rgba(255, 255, 255, 0.04);
+}

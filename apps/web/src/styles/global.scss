@@ -1,0 +1,35 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --epoch-body-bg: #f5f7fb;
+  --epoch-header-bg: #ffffff;
+  --epoch-header-border: #f0f0f0;
+}
+
+:root[data-theme='dark'] {
+  --epoch-body-bg: #000000;
+  --epoch-header-bg: #141414;
+  --epoch-header-border: #303030;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  background: var(--epoch-body-bg);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] body {
+  color-scheme: dark;
+}

@@ -1,0 +1,12 @@
+.idea
+node_modules
+dist
+build
+.yarn/cache
+.yarn/install-state.gz
+.env
+.env.local
+data/
+*.log
+coverage
+.DS_Store

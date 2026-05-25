@@ -1,0 +1,60 @@
+export enum Role {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  PROBLEM_EDITOR = 'PROBLEM_EDITOR',
+}
+
+export enum ProblemVisibility {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
+}
+
+export enum JudgeMode {
+  OI = 'OI',
+  ACM = 'ACM',
+}
+
+export enum Language {
+  JAVASCRIPT = 'JAVASCRIPT',
+  C = 'C',
+  CPP = 'CPP',
+  PYTHON = 'PYTHON',
+  JAVA = 'JAVA',
+}
+
+export enum SubmissionStatus {
+  PENDING = 'PENDING',
+  QUEUED = 'QUEUED',
+  JUDGING = 'JUDGING',
+  COMPILING = 'COMPILING',
+  RUNNING = 'RUNNING',
+  ACCEPTED = 'ACCEPTED',
+  WRONG_ANSWER = 'WRONG_ANSWER',
+  TIME_LIMIT_EXCEEDED = 'TIME_LIMIT_EXCEEDED',
+  MEMORY_LIMIT_EXCEEDED = 'MEMORY_LIMIT_EXCEEDED',
+  RUNTIME_ERROR = 'RUNTIME_ERROR',
+  COMPILE_ERROR = 'COMPILE_ERROR',
+  SECURITY_ERROR = 'SECURITY_ERROR',
+  SYSTEM_ERROR = 'SYSTEM_ERROR',
+}
+
+export enum TestcaseVerdict {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  WRONG_ANSWER = 'WRONG_ANSWER',
+  TIME_LIMIT_EXCEEDED = 'TIME_LIMIT_EXCEEDED',
+  MEMORY_LIMIT_EXCEEDED = 'MEMORY_LIMIT_EXCEEDED',
+  RUNTIME_ERROR = 'RUNTIME_ERROR',
+  COMPILE_ERROR = 'COMPILE_ERROR',
+  SKIPPED = 'SKIPPED',
+}
+
+export enum ContestVisibility {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
+}
+
+export enum StorageType {
+  LOCAL = 'local',
+  S3 = 's3',
+}

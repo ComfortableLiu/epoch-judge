@@ -1,0 +1,30 @@
+FROM node:20-bookworm AS build
+WORKDIR /app
+RUN corepack enable
+COPY package.json yarn.lock* .yarnrc.yml ./
+COPY apps/api/package.json apps/api/
+COPY apps/judge/package.json apps/judge/
+COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/
+COPY packages/db/package.json packages/db/
+COPY packages/storage/package.json packages/storage/
+COPY packages/redis/package.json packages/redis/
+RUN yarn install
+COPY . .
+RUN yarn workspace @epoch-judge/db generate
+RUN yarn workspace @epoch-judge/shared build
+RUN yarn workspace @epoch-judge/storage build
+RUN yarn workspace @epoch-judge/redis build
+RUN yarn workspace @epoch-judge/db build
+RUN yarn workspace @epoch-judge/api build
+
+FROM node:20-bookworm-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/apps/api/dist ./dist
+COPY --from=build /app/apps/api/package.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/packages ./packages
+COPY templates ./templates
+EXPOSE 3000
+CMD ["node", "dist/main.js"]
