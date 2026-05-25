@@ -12,8 +12,6 @@
 - 测试数据默认 **本地目录**，可选 **S3**
 - 默认 **单机 1× Judge Worker**（`JUDGE_MOCK=true` 可用于冒烟）
 
-> 严禁使用 Tailwind CSS。
-
 ## 一键部署
 
 只需执行一次（需已安装 Node 18+、Docker、Docker Compose）：
