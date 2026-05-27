@@ -8,8 +8,8 @@ export class RedisService implements OnModuleDestroy {
   readonly subscriber: Redis;
 
   constructor() {
-    this.client = createRedisClient({ maxRetriesPerRequest: null });
-    this.subscriber = createRedisClient({ maxRetriesPerRequest: null });
+    this.client = createRedisClient({ maxRetriesPerRequest: 3 });
+    this.subscriber = createRedisClient({ maxRetriesPerRequest: 3 });
   }
 
   async onModuleDestroy() {

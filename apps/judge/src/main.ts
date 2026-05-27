@@ -24,7 +24,13 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
   await app.init();
-  console.log(`EpochJudge Judge Worker started (gRPC :${grpcPort})`);
+  const queueName = process.env.REDIS_KEY_PREFIX
+    ? `${process.env.REDIS_KEY_PREFIX}:judge-tasks`
+    : 'judge-tasks';
+  console.log(
+    `EpochJudge Judge Worker started (gRPC :${grpcPort}, queue prefix=${process.env.REDIS_KEY_PREFIX ?? 'epoch-judge'}, JUDGE_MOCK=${process.env.JUDGE_MOCK ?? 'false'})`,
+  );
+  console.log(`Listening on BullMQ queue "${queueName}" — ensure API uses the same REDIS_KEY_PREFIX`);
 }
 
 bootstrap();

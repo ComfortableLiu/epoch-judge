@@ -20,8 +20,20 @@ const messages: Record<string, Record<string, string>> = {
     'en-US': 'Submission not found',
   },
   'contest.not_active': {
-    'zh-CN': '比赛未开始或已结束',
-    'en-US': 'Contest is not active',
+    'zh-CN': '比赛未开始或已结束，暂不可提交',
+    'en-US': 'Contest is not active for submissions',
+  },
+  'contest.not_started': {
+    'zh-CN': '比赛尚未开始，暂不可进入',
+    'en-US': 'Contest has not started yet',
+  },
+  'contest.judge_mode_locked': {
+    'zh-CN': '比赛已锁定评测模式，不可修改',
+    'en-US': 'Judge mode is locked by the contest',
+  },
+  'contest.problem_not_in_contest': {
+    'zh-CN': '该题目不属于本场比赛',
+    'en-US': 'Problem is not in this contest',
   },
   'security.forbidden_pattern': {
     'zh-CN': '代码包含不允许的模式',

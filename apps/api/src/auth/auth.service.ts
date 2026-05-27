@@ -23,6 +23,18 @@ export class AuthService {
       where: { username: dto.username },
     });
     if (exists) {
+      if (exists.mustResetPassword) {
+        const passwordHash = await bcrypt.hash(dto.password, 10);
+        const user = await this.prisma.client.user.update({
+          where: { id: exists.id },
+          data: {
+            passwordHash,
+            mustResetPassword: false,
+            ...(dto.email !== undefined ? { email: dto.email } : {}),
+          },
+        });
+        return this.tokensFor(user.id, user.username, user.role as Role, locale);
+      }
       throw new ConflictException({
         messageKey: 'auth.username_taken',
         message: t('auth.username_taken', locale),
@@ -43,7 +55,16 @@ export class AuthService {
     const user = await this.prisma.client.user.findUnique({
       where: { username: dto.username },
     });
-    if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
+    if (!user) {
+      throw new UnauthorizedException({
+        messageKey: 'auth.invalid_credentials',
+        message: t('auth.invalid_credentials', locale),
+      });
+    }
+    if (
+      user.mustResetPassword ||
+      !(await bcrypt.compare(dto.password, user.passwordHash))
+    ) {
       throw new UnauthorizedException({
         messageKey: 'auth.invalid_credentials',
         message: t('auth.invalid_credentials', locale),

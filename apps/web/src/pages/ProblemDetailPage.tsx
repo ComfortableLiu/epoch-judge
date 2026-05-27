@@ -1,47 +1,67 @@
 import { useQuery } from '@tanstack/react-query';
 import { Button, Card, Tag } from 'antd';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { MarkdownContent } from '../components/MarkdownContent';
 import { useBreadcrumbLabel } from '../contexts/BreadcrumbContext';
+import { formatEntityId } from '../lib/format-entity-id';
+import { formatMemoryKiB } from '../lib/format-memory';
 import { resolveProblemAssetSrc } from '../lib/resolve-problem-asset-src';
 
 export function ProblemDetailPage() {
-  const { slug } = useParams();
+  const { number } = useParams();
+  const [searchParams] = useSearchParams();
+  const contestId = searchParams.get('contestId');
   const { t } = useTranslation();
   const { data, isLoading } = useQuery({
-    queryKey: ['problem', slug],
-    queryFn: () =>
-      api<{
+    queryKey: ['problem', number, contestId],
+    queryFn: () => {
+      const q = contestId ? `?contestId=${encodeURIComponent(contestId)}` : '';
+      return api<{
+        number: number;
         title: string;
         statement: string;
         timeLimitMs: number;
         memoryLimitKb: number;
-        defaultJudgeMode: string;
-      }>(`/problems/${slug}`),
-    enabled: Boolean(slug),
+      }>(`/problems/${number}${q}`);
+    },
+    enabled: Boolean(number),
   });
 
-  useBreadcrumbLabel(data?.title ?? slug);
+  useBreadcrumbLabel(
+    data ? `${formatEntityId(data.number)} ${data.title}` : number,
+  );
+
+  const submitQs = contestId
+    ? `?contestId=${encodeURIComponent(contestId)}`
+    : '';
 
   return (
     <Card
       loading={isLoading}
-      title={data?.title}
+      title={
+        data ? (
+          <>
+            <Tag style={{ marginRight: 8 }}>{formatEntityId(data.number)}</Tag>
+            {data.title}
+          </>
+        ) : undefined
+      }
       extra={
-        <Link to={`/problems/${slug}/submit`}>
+        <Link to={`/problems/${number}/submit${submitQs}`}>
           <Button type="primary">{t('problems.submit')}</Button>
         </Link>
       }
     >
       <Tag>
-        {data?.timeLimitMs}ms / {data?.memoryLimitKb}KB
+        {data?.timeLimitMs}ms / {data ? formatMemoryKiB(data.memoryLimitKb) : ''}
       </Tag>
-      <Tag>{data?.defaultJudgeMode}</Tag>
       <MarkdownContent
         content={data?.statement}
-        resolveAssetSrc={(src) => resolveProblemAssetSrc(slug!, src) ?? src}
+        resolveAssetSrc={(src) =>
+          resolveProblemAssetSrc(number!, src, contestId) ?? src
+        }
       />
     </Card>
   );

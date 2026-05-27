@@ -1,4 +1,5 @@
-import { Button, Card, Form, Input, message } from 'antd';
+import { Button, Card, Form, Input } from 'antd';
+import { appMessage } from '../lib/app-message';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { api, setToken } from '../api/client';
@@ -20,7 +21,7 @@ export function RegisterPage() {
             setToken(res.accessToken);
             nav('/problems');
           } catch (e) {
-            message.error(e instanceof Error ? e.message : 'Error');
+            appMessage.error(e instanceof Error ? e.message : 'Error');
           }
         }}
       >

@@ -15,6 +15,20 @@ export function isSubmissionTerminal(status: string): boolean {
   return TERMINAL_STATUSES.has(status);
 }
 
+const IN_FLIGHT_STATUSES = new Set<string>([
+  SubmissionStatus.PENDING,
+  SubmissionStatus.QUEUED,
+  SubmissionStatus.JUDGING,
+  SubmissionStatus.COMPILING,
+  SubmissionStatus.RUNNING,
+  SubmissionStatus.REJUDGE_QUEUED,
+  SubmissionStatus.REJUDGING,
+]);
+
+export function isSubmissionInFlight(status: string): boolean {
+  return IN_FLIGHT_STATUSES.has(status);
+}
+
 export function hasPendingSubmissions(
   submissions: { status: string }[] | undefined,
 ): boolean {

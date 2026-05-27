@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisKeys } from '@epoch-judge/redis';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class InflightService {
+  private readonly logger = new Logger(InflightService.name);
   private readonly max: number;
 
   constructor(
@@ -17,8 +18,10 @@ export class InflightService {
   async acquire(): Promise<void> {
     const key = RedisKeys.judgeInflight();
     const n = await this.redis.client.incr(key);
+    this.logger.log(`inflight acquire key=${key} count=${n} max=${this.max}`);
     if (n > this.max) {
       await this.redis.client.decr(key);
+      this.logger.warn(`inflight rejected count=${n} max=${this.max}`);
       throw new BadRequestException('Judge queue is full, try again later');
     }
   }
@@ -27,5 +30,6 @@ export class InflightService {
     const key = RedisKeys.judgeInflight();
     const n = await this.redis.client.decr(key);
     if (n < 0) await this.redis.client.set(key, '0');
+    this.logger.log(`inflight release key=${key} count=${n}`);
   }
 }

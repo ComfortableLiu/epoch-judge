@@ -15,4 +15,7 @@ TOKEN=$(echo "$REG" | node -e "process.stdout.write(JSON.parse(require('fs').rea
 echo "Problems..."
 curl -sf "$API/problems" -H "Authorization: Bearer $TOKEN" >/dev/null
 
+echo "Submissions..."
+curl -sf "$API/submissions" -H "Authorization: Bearer $TOKEN" >/dev/null
+
 echo "Smoke OK"

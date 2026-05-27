@@ -4,7 +4,7 @@ import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import { LocalStorageProvider } from './local.provider';
-import { createStorageProvider } from './factory';
+import { createStorageProvider, resolveLocalStorageRoot } from './factory';
 
 test('local storage read/write', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'epoch-storage-'));
@@ -20,4 +20,8 @@ test('local storage read/write', async () => {
 test('factory defaults to local', () => {
   const p = createStorageProvider({ type: 'local', localRoot: '/tmp/epoch' });
   assert.ok(p);
+});
+
+test('resolveLocalStorageRoot uses absolute paths as-is', () => {
+  assert.equal(resolveLocalStorageRoot('/var/epoch/data'), '/var/epoch/data');
 });

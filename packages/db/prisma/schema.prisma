@@ -37,6 +37,8 @@ enum SubmissionStatus {
   JUDGING
   COMPILING
   RUNNING
+  REJUDGE_QUEUED
+  REJUDGING
   ACCEPTED
   WRONG_ANSWER
   TIME_LIMIT_EXCEEDED
@@ -64,34 +66,41 @@ enum ContestVisibility {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  username     String   @unique
-  email        String?  @unique
-  passwordHash String   @map("password_hash")
-  displayName  String?  @map("display_name")
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                 String     @id @default(cuid())
+  username           String     @unique
+  email              String?    @unique
+  passwordHash       String     @map("password_hash")
+  displayName        String?    @map("display_name")
+  role               Role       @default(USER)
+  preferredLanguage  Language?  @map("preferred_language")
+  preferredJudgeMode JudgeMode? @map("preferred_judge_mode")
+  mustResetPassword  Boolean    @default(false) @map("must_reset_password")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
 
   submissions           Submission[]
   contestRegistrations  ContestRegistration[]
+  createdProblems       Problem[]             @relation("ProblemCreator")
+  createdContests       Contest[]             @relation("ContestCreator")
 
   @@map("users")
 }
 
 model Problem {
   id               String            @id @default(cuid())
-  slug             String            @unique
+  number           Int               @unique @default(autoincrement())
   title            String
   statement        String            @db.Text
   difficulty       Int               @default(1)
-  visibility       ProblemVisibility @default(PUBLIC)
-  defaultJudgeMode JudgeMode         @default(ACM) @map("default_judge_mode")
+  visibility       ProblemVisibility @default(PRIVATE)
+  createdById      String?           @map("created_by_id")
   timeLimitMs      Int               @default(1000) @map("time_limit_ms")
   memoryLimitKb    Int               @default(262144) @map("memory_limit_kb")
+  tags             Json              @default("[]")
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
 
+  createdBy        User?             @relation("ProblemCreator", fields: [createdById], references: [id], onDelete: SetNull)
   testcases        ProblemTestcase[]
   assets           ProblemAsset[]
   submissions      Submission[]
@@ -137,18 +146,21 @@ model ProblemTestcase {
 
 model Submission {
   id         String           @id @default(cuid())
+  number     Int              @unique @default(autoincrement())
   userId     String           @map("user_id")
   problemId  String           @map("problem_id")
   contestId  String?          @map("contest_id")
   language   Language
   judgeMode  JudgeMode        @map("judge_mode")
   sourceCode String           @map("source_code") @db.Text
-  status     SubmissionStatus @default(PENDING)
-  score      Int?
-  timeMs     Int?             @map("time_ms")
-  memoryKb   Int?             @map("memory_kb")
-  createdAt  DateTime         @default(now()) @map("created_at")
-  updatedAt  DateTime         @updatedAt @map("updated_at")
+  status          SubmissionStatus @default(PENDING)
+  score           Int?
+  timeMs          Int?             @map("time_ms")
+  memoryKb        Int?             @map("memory_kb")
+  rejudgeCount    Int              @default(0) @map("rejudge_count")
+  lastRejudgedAt  DateTime?        @map("last_rejudged_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
 
   user     User     @relation(fields: [userId], references: [id])
   problem  Problem  @relation(fields: [problemId], references: [id])
@@ -179,17 +191,20 @@ model SubmissionTestcaseResult {
 
 model Contest {
   id              String            @id @default(cuid())
-  slug            String            @unique
+  number          Int               @unique @default(autoincrement())
   title           String
   description     String            @db.Text
   visibility      ContestVisibility @default(PUBLIC)
+  accessPassword  String?           @map("access_password")
   judgeMode       JudgeMode         @map("judge_mode")
   startAt         DateTime          @map("start_at")
   endAt           DateTime          @map("end_at")
   freezeAt        DateTime?         @map("freeze_at")
+  createdById     String?           @map("created_by_id")
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
 
+  createdBy     User?                 @relation("ContestCreator", fields: [createdById], references: [id], onDelete: SetNull)
   problems      ContestProblem[]
   registrations ContestRegistration[]
   submissions   Submission[]
@@ -212,10 +227,15 @@ model ContestProblem {
 }
 
 model ContestRegistration {
-  id        String   @id @default(cuid())
-  contestId String   @map("contest_id")
-  userId    String   @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  id                  String   @id @default(cuid())
+  contestId           String   @map("contest_id")
+  userId              String   @map("user_id")
+  passwordVerified    Boolean  @default(false) @map("password_verified")
+  /// 报名时冻结的展示名（displayName 或 username），赛后不随用户资料变更
+  displayNameSnapshot String   @map("display_name_snapshot")
+  /// 打星队伍：榜单名前带 *，不计入官方排名与成绩
+  isStarTeam          Boolean  @default(false) @map("is_star_team")
+  createdAt           DateTime @default(now()) @map("created_at")
 
   contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])

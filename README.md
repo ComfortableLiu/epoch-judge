@@ -27,11 +27,20 @@
 ```bash
 git clone <你的仓库地址>
 cd epoch-judge
-chmod +x scripts/deploy.sh
+chmod +x scripts/deploy.sh scripts/deploy-remote-judge.sh
 yarn deploy
 ```
 
-脚本会完成：安装依赖 → 构建 → 启动 Compose（MySQL、Redis、API、Judge、Web）→ 数据库迁移 → 写入种子数据。
+脚本为中文向导：在本机部署 **MySQL、Redis、API、Web**（网站与 API 同机），并询问是否在**远程机器**单独部署判题机。
+
+- 选 **否**：仅控制面，结束时提示如何执行 `yarn deploy:judge` 连接远程判题机  
+- 选 **是**：同时在本机启动判题 Worker（单机全栈）
+
+远程判题机（在另一台 Linux 上，中心机已部署完成后）：
+
+```bash
+yarn deploy:judge
+```
 
 | 服务 | 地址 |
 |------|------|
@@ -106,7 +115,8 @@ testdata/
 
 | 命令 | 说明 |
 |------|------|
-| `yarn deploy` | Docker 一键部署 |
+| `yarn deploy` | 一键部署（中文向导，可选本机/远程判题） |
+| `yarn deploy:judge` | 远程判题机一键部署（仅 Worker） |
 | `yarn dev` | 本地并行启动 API / Web / Judge |
 | `yarn build` | 构建全部 workspace |
 | `yarn db:migrate` | 执行数据库迁移 |
@@ -126,10 +136,11 @@ testdata/
 | `STORAGE_TYPE` | `local`（默认）或 `s3` 存放测试数据/题目资源 |
 | `STORAGE_LOCAL_ROOT` | 本地存储根目录 |
 | `JUDGE_MOCK` | 是否模拟判题 |
-| `JUDGE_WORKER_CONCURRENCY` | Worker 并发数 |
+| `JUDGE_WORKER_CONCURRENCY` | 单台 Worker 沙箱并发数 |
+| `JUDGE_GLOBAL_MAX_INFLIGHT` | 全站同时判题上限（API） |
 | `SEED_ADMIN_*` | 种子管理员账号 |
 
-完整部署、扩展多个 Judge 副本、切换 S3 等见 [docs/deploy.md](docs/deploy.md)。API 约定与判题流程见 [docs/developer.md](docs/developer.md)。
+部署与运维文档见 [docs/deploy.md](docs/deploy.md)（含**同机扩容**与**多机远程判题机**配置）。API 约定与判题流程见 [docs/developer.md](docs/developer.md)。
 
 ## 仓库结构
 
@@ -194,7 +205,7 @@ Set `JUDGE_MOCK=true` in `.env` to simulate accepted verdicts without a full san
 
 ### Documentation
 
-- [docs/deploy.md](docs/deploy.md) — deployment & scaling  
+- [docs/deploy.md](docs/deploy.md) — deployment, multi-worker & remote judges  
 - [docs/developer.md](docs/developer.md) — API & problem package format  
 
 Licensed under [MIT](LICENSE).

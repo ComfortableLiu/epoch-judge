@@ -5,18 +5,19 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
+import { formatEntityId } from '../lib/format-entity-id';
 import {
   hasPendingSubmissions,
   submissionStatusColor,
 } from '../lib/submission-status-ui';
 
 type SubmissionRow = {
-  id: string;
+  number: number;
   status: string;
   language: string;
   score: number | null;
   createdAt: string;
-  problem: { slug: string; title: string };
+  problem: { number: number; title: string };
   user: { username: string; displayName: string | null };
 };
 
@@ -37,12 +38,12 @@ export function SubmissionsPage() {
     () => [
       {
         title: t('submissions.colId'),
-        dataIndex: 'id',
-        key: 'id',
+        dataIndex: 'number',
+        key: 'number',
         width: 120,
-        render: (id: string) => (
-          <Link to={`/submissions/${id}`} title={id}>
-            {id.slice(0, 8)}…
+        render: (number: number) => (
+          <Link to={`/submissions/${number}`}>
+            {formatEntityId(number)}
           </Link>
         ),
       },
@@ -50,7 +51,9 @@ export function SubmissionsPage() {
         title: t('submissions.colProblem'),
         key: 'problem',
         render: (_, row) => (
-          <Link to={`/problems/${row.problem.slug}`}>{row.problem.title}</Link>
+          <Link to={`/problems/${row.problem.number}`}>
+            {formatEntityId(row.problem.number)} {row.problem.title}
+          </Link>
         ),
       },
       {
@@ -65,7 +68,9 @@ export function SubmissionsPage() {
         key: 'status',
         width: 160,
         render: (status: string) => (
-          <Tag color={submissionStatusColor(status)}>{status}</Tag>
+          <Tag color={submissionStatusColor(status)}>
+            {t(`submissionStatus.${status}`, { defaultValue: status })}
+          </Tag>
         ),
       },
       {
@@ -97,7 +102,7 @@ export function SubmissionsPage() {
   return (
     <Card title={t('submissions.title')} loading={isPending && !data}>
       <Table<SubmissionRow>
-        rowKey="id"
+        rowKey="number"
         columns={columns}
         dataSource={data ?? []}
         pagination={{ pageSize: 20, showSizeChanger: false }}

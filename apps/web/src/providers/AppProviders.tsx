@@ -1,9 +1,10 @@
-import { ConfigProvider, theme } from 'antd';
+import { App, ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import { PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useThemeMode } from '../hooks/useThemeMode';
+import { AppMessageBridge } from './AppMessageBridge';
 
 function AntdConfig({ children }: PropsWithChildren) {
   const { i18n } = useTranslation();
@@ -26,7 +27,9 @@ function AntdConfig({ children }: PropsWithChildren) {
         },
       }}
     >
-      {children}
+      <App message={{ top: 64, maxCount: 3 }}>
+        <AppMessageBridge>{children}</AppMessageBridge>
+      </App>
     </ConfigProvider>
   );
 }

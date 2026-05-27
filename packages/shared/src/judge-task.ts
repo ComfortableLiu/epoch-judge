@@ -15,7 +15,8 @@ export interface JudgeTaskPayload {
   sourceCode: string;
   timeLimitMs: number;
   memoryLimitKb: number;
-  testcases: JudgeTestcasePayload[];
+  /** 可选；省略时由 Worker 按 problemId 从数据库加载（同题共享，队列不传测例元数据） */
+  testcases?: JudgeTestcasePayload[];
 }
 
 export interface JudgeEventPayload {

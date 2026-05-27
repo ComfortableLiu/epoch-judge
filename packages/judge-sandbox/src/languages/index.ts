@@ -108,9 +108,6 @@ export async function runTestcase(input: TestcaseRunInput): Promise<RunResult> {
   const limits = input.limits;
   await fs.mkdir(input.workDir, { recursive: true });
   await writeSource(input.workDir, input.language, input.sourceCode);
-  const inputPath = path.join(input.workDir, 'input.txt');
-  await fs.writeFile(inputPath, input.input);
-
   const compileErr = await compileIfNeeded(input.workDir, input.language, limits);
   if (compileErr) return compileErr;
 
@@ -123,6 +120,7 @@ export async function runTestcase(input: TestcaseRunInput): Promise<RunResult> {
       cwd: input.workDir,
       timeoutMs,
       maxBufferBytes: maxBuf,
+      stdin: input.input,
       env: {
         PATH: process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin',
         NODE_OPTIONS: '--max-old-space-size=256',

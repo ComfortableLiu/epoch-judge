@@ -1,9 +1,19 @@
-import { Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role } from '@epoch-judge/db';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../common/optional-jwt-auth.guard';
 import { Roles } from '../common/roles.decorator';
 import { RolesGuard } from '../common/roles.guard';
+import { VerifyContestPasswordDto } from './contests.dto';
 import { ContestsService } from './contests.service';
 
 @ApiTags('contests')
@@ -16,28 +26,64 @@ export class ContestsController {
     return this.contests.list();
   }
 
-  @Get(':slug')
-  detail(@Param('slug') slug: string) {
-    return this.contests.getBySlug(slug);
+  @Get(':number')
+  @UseGuards(OptionalJwtAuthGuard)
+  detail(
+    @Param('number') number: string,
+    @Req() req: { user?: { id: string; role: Role } },
+  ) {
+    return this.contests.getDetailByNumber(number, req.user);
   }
 
-  @Get(':id/scoreboard')
-  scoreboard(@Param('id') id: string) {
-    return this.contests.scoreboard(id, true, false);
+  @Get(':number/scoreboard')
+  @UseGuards(OptionalJwtAuthGuard)
+  scoreboard(
+    @Param('number') number: string,
+    @Req() req: { user?: { id: string; role: Role }; locale?: string },
+  ) {
+    return this.contests.scoreboard(
+      number,
+      req.user,
+      req.locale ?? 'zh-CN',
+      true,
+      false,
+    );
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @Get(':id/scoreboard/full')
-  scoreboardFull(@Param('id') id: string) {
-    return this.contests.scoreboard(id, false, true);
+  @Get(':number/scoreboard/full')
+  scoreboardFull(
+    @Param('number') number: string,
+    @Req() req: { user: { id: string; role: Role }; locale?: string },
+  ) {
+    return this.contests.scoreboard(
+      number,
+      req.user,
+      req.locale ?? 'zh-CN',
+      false,
+      true,
+    );
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Post(':id/register')
-  register(@Param('id') id: string, @Req() req: { user: { id: string } }) {
-    return this.contests.register(req.user.id, id);
+  @Post(':number/register')
+  register(@Param('number') number: string, @Req() req: { user: { id: string } }) {
+    return this.contests
+      .resolveByNumber(number)
+      .then((c) => this.contests.register(req.user.id, c.id));
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post(':number/verify-password')
+  verifyPassword(
+    @Param('number') number: string,
+    @Body() dto: VerifyContestPasswordDto,
+    @Req() req: { user: { id: string } },
+  ) {
+    return this.contests.verifyPassword(number, req.user.id, dto.password);
   }
 }

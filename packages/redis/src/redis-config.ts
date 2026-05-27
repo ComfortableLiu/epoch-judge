@@ -39,12 +39,18 @@ export function ensureRedisUrl(env: NodeJS.ProcessEnv = process.env): string {
   return url;
 }
 
-export function getRedisConnectionOptions(config?: RedisConfig) {
+export function getRedisConnectionOptions(
+  config?: RedisConfig,
+  opts?: { bullMq?: boolean },
+) {
   const c = config ?? resolveRedisConfig();
   return {
     host: c.host,
     port: c.port,
     password: c.password || undefined,
     db: c.db ?? 0,
+    connectTimeout: 10_000,
+    enableReadyCheck: true,
+    ...(opts?.bullMq ? { maxRetriesPerRequest: null as null } : { maxRetriesPerRequest: 3 }),
   };
 }

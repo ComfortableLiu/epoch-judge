@@ -1,87 +1,233 @@
-import { useQuery } from '@tanstack/react-query';
-import { Card, List, Table, Tag, Typography } from 'antd';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Card, Input, List, Modal, Table, Tag, Typography } from 'antd';
+import { appMessage } from '../lib/app-message';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api } from '../api/client';
+import { api, getToken } from '../api/client';
+import { formatEntityId } from '../lib/format-entity-id';
+import { formatContestTitle } from '../lib/format-contest-title';
 import { useBreadcrumbLabel } from '../contexts/BreadcrumbContext';
 
-export function ContestDetailPage() {
-  const { slug } = useParams();
-  const { t } = useTranslation();
+type ContestDetail = {
+  id: string;
+  number: number;
+  title: string;
+  description: string;
+  judgeMode: string;
+  startAt: string;
+  endAt: string;
+  freezeAt: string | null;
+  requiresPassword?: boolean;
+  accessGranted?: boolean;
+  accessDeniedReason?: 'not_started' | 'password' | null;
+  status?: 'upcoming' | 'running' | 'ended';
+  canSubmit?: boolean;
+  previewMode?: boolean;
+  problems: { label: string; problem: { number: number; title: string } }[];
+};
 
-  const { data: contest, isLoading } = useQuery({
-    queryKey: ['contest', slug],
-    queryFn: () =>
-      api<{
-        id: string;
-        title: string;
-        description: string;
-        judgeMode: string;
-        startAt: string;
-        endAt: string;
-        freezeAt: string | null;
-        problems: { label: string; problem: { slug: string; title: string } }[];
-      }>(`/contests/${slug}`),
-    enabled: Boolean(slug),
+type ScoreboardRow = {
+  userId: string;
+  displayName: string;
+  isStarTeam: boolean;
+  rank: number | null;
+  score?: number;
+  solved?: number;
+  penalty?: number;
+};
+
+export function ContestDetailPage() {
+  const { number } = useParams();
+  const { t } = useTranslation();
+  const loggedIn = Boolean(getToken());
+  const qc = useQueryClient();
+  const [password, setPassword] = useState('');
+  const [pwdOpen, setPwdOpen] = useState(false);
+
+  const { data: contest, isLoading, refetch } = useQuery({
+    queryKey: ['contest', number],
+    queryFn: () => api<ContestDetail>(`/contests/${number}`),
+    enabled: Boolean(number),
+  });
+
+  const accessGranted = contest?.accessGranted !== false;
+  const notStartedBlocked = contest?.accessDeniedReason === 'not_started';
+  const needsPassword = contest?.accessDeniedReason === 'password';
+  const previewMode = Boolean(contest?.previewMode);
+  const canSubmit = Boolean(contest?.canSubmit);
+
+  const verifyPassword = useMutation({
+    mutationFn: () =>
+      api(`/contests/${number}/verify-password`, {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      }),
+    onSuccess: () => {
+      appMessage.success('密码验证成功');
+      setPwdOpen(false);
+      setPassword('');
+      void refetch();
+      void qc.invalidateQueries({ queryKey: ['contest', number] });
+    },
+    onError: (e: Error) => appMessage.error(e.message),
   });
 
   const { data: scoreboard } = useQuery({
-    queryKey: ['contest-scoreboard', contest?.id],
-    queryFn: () =>
-      api<{ userId: string; username: string; score?: number; solved?: number; penalty?: number }[]>(
-        `/contests/${contest!.id}/scoreboard`,
-      ),
-    enabled: Boolean(contest?.id),
+    queryKey: ['contest-scoreboard', number],
+    queryFn: () => api<ScoreboardRow[]>(`/contests/${number}/scoreboard`),
+    enabled: Boolean(number) && accessGranted,
     refetchInterval: 10000,
   });
 
-  useBreadcrumbLabel(contest?.title ?? slug);
+  const officialRows = (scoreboard ?? []).filter((r) => !r.isStarTeam);
+  const starRows = (scoreboard ?? []).filter((r) => r.isStarTeam);
+
+  const displayTitle = contest
+    ? formatContestTitle(contest.title, contest.requiresPassword)
+    : number
+      ? `#${number}`
+      : undefined;
+  useBreadcrumbLabel(displayTitle);
+
+  const scoreColumns =
+    contest?.judgeMode === 'OI'
+      ? [{ title: 'Score', dataIndex: 'score' as const }]
+      : [
+          { title: 'Solved', dataIndex: 'solved' as const },
+          { title: 'Penalty', dataIndex: 'penalty' as const },
+        ];
 
   return (
     <div>
-      <Card loading={isLoading} title={contest?.title}>
+      {notStartedBlocked && (
+        <Card style={{ marginBottom: 16 }}>
+          <Typography.Paragraph>{t('contests.notStartedBlocked')}</Typography.Paragraph>
+          {contest?.startAt && (
+            <Typography.Text type="secondary">
+              {t('contests.colStart')}：{new Date(contest.startAt).toLocaleString()}
+            </Typography.Text>
+          )}
+          {!loggedIn && (
+            <Typography.Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
+              {t('contests.notStartedLoginHint')}
+            </Typography.Paragraph>
+          )}
+        </Card>
+      )}
+
+      {needsPassword && (
+        <Card style={{ marginBottom: 16 }}>
+          <Typography.Paragraph>{t('contests.passwordBlocked')}</Typography.Paragraph>
+          {loggedIn ? (
+            <Button type="primary" onClick={() => setPwdOpen(true)}>
+              {t('contests.enterPassword')}
+            </Button>
+          ) : (
+            <Typography.Text type="secondary">{t('contests.passwordLoginHint')}</Typography.Text>
+          )}
+        </Card>
+      )}
+
+      <Modal
+        title="比赛密码"
+        open={pwdOpen}
+        onCancel={() => setPwdOpen(false)}
+        onOk={() => verifyPassword.mutate()}
+        confirmLoading={verifyPassword.isPending}
+        okText="确认"
+      >
+        <Input.Password
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="请输入比赛密码"
+          autoComplete="current-password"
+        />
+      </Modal>
+
+      <Card
+        loading={isLoading}
+        title={
+          contest
+            ? formatContestTitle(contest.title, contest.requiresPassword)
+            : `比赛 #${number}`
+        }
+      >
+        {contest?.number != null && (
+          <Tag style={{ marginBottom: 8 }}>ID #{contest.number}</Tag>
+        )}
         <Tag>{contest?.judgeMode}</Tag>
-        <Typography.Paragraph style={{ whiteSpace: 'pre-wrap' }}>
-          {contest?.description}
-        </Typography.Paragraph>
-        {contest?.freezeAt && (
+        {accessGranted && (
+          <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginTop: 12 }}>
+            {contest?.description}
+          </Typography.Paragraph>
+        )}
+        {previewMode && (
+          <Typography.Paragraph type="warning" style={{ marginTop: 8 }}>
+            {t('contests.previewModeHint')}
+          </Typography.Paragraph>
+        )}
+        {contest?.freezeAt && accessGranted && (
           <Typography.Text type="secondary">
             Freeze: {new Date(contest.freezeAt).toLocaleString()}
           </Typography.Text>
         )}
       </Card>
 
-      <Card title={t('nav.problems')} style={{ marginTop: 16 }}>
-        <List
-          dataSource={contest?.problems ?? []}
-          renderItem={(p) => (
-            <List.Item>
-              <Tag>{p.label}</Tag>
-              <Link to={`/problems/${p.problem.slug}`}>{p.problem.title}</Link>
-            </List.Item>
-          )}
-        />
-      </Card>
+      {accessGranted && (
+        <>
+          <Card title={t('nav.problems')} style={{ marginTop: 16 }}>
+            <List
+              dataSource={contest?.problems ?? []}
+              renderItem={(p) => (
+                <List.Item>
+                  <Tag>{p.label}</Tag>
+                  <Tag style={{ marginRight: 4 }}>{formatEntityId(p.problem.number)}</Tag>
+                  <Link
+                    to={`/problems/${p.problem.number}?contestId=${contest?.number ?? number}`}
+                  >
+                    {p.problem.title}
+                  </Link>
+                  {canSubmit && (
+                    <>
+                      {' · '}
+                      <Link
+                        to={`/problems/${p.problem.number}/submit?contestId=${contest?.number ?? number}`}
+                      >
+                        {t('problems.submit')}
+                      </Link>
+                    </>
+                  )}
+                </List.Item>
+              )}
+            />
+          </Card>
 
-      <Card title="Scoreboard" style={{ marginTop: 16 }}>
-        <Table
-          dataSource={scoreboard ?? []}
-          rowKey="userId"
-          pagination={false}
-          columns={
-            contest?.judgeMode === 'OI'
-              ? [
-                  { title: 'User', dataIndex: 'username' },
-                  { title: 'Score', dataIndex: 'score' },
-                ]
-              : [
-                  { title: 'User', dataIndex: 'username' },
-                  { title: 'Solved', dataIndex: 'solved' },
-                  { title: 'Penalty', dataIndex: 'penalty' },
-                ]
-          }
-        />
-      </Card>
+          <Card title="官方榜单" style={{ marginTop: 16 }}>
+            <Table<ScoreboardRow>
+              dataSource={officialRows}
+              rowKey="userId"
+              pagination={false}
+              columns={[
+                { title: '#', dataIndex: 'rank', width: 56 },
+                { title: '选手', dataIndex: 'displayName' },
+                ...scoreColumns,
+              ]}
+            />
+          </Card>
+
+          {starRows.length > 0 && (
+            <Card title="打星队伍（不计入排名与成绩）" style={{ marginTop: 16 }}>
+              <Table<ScoreboardRow>
+                dataSource={starRows}
+                rowKey="userId"
+                pagination={false}
+                columns={[{ title: '选手', dataIndex: 'displayName' }]}
+              />
+            </Card>
+          )}
+        </>
+      )}
     </div>
   );
 }

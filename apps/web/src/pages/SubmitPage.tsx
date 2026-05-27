@@ -1,15 +1,18 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Card, Form, Select, message } from 'antd';
+import { Alert, Button, Card, Form, Select } from 'antd';
+import { appMessage } from '../lib/app-message';
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { CodeEditor } from '../components/CodeEditor';
 import { useBreadcrumbLabel } from '../contexts/BreadcrumbContext';
 
 const LANGS = ['JAVASCRIPT', 'PYTHON', 'JAVA', 'C', 'CPP'] as const;
 const TEMPLATES: Record<string, string> = {
-  JAVASCRIPT: '// JavaScript (stdin via wrapper in production)\nlet s="";\nprocess.stdin.on("data",d=>s+=d);\nprocess.stdin.on("end",()=>console.log(s.trim().split(/\\s+/).join(" ")));\n',
-  PYTHON: 'import sys\ninput = sys.stdin.read().split()\nprint(" ".join(input))\n',
+  JAVASCRIPT:
+    'import fs from "node:fs";\nconst [a, b] = fs.readFileSync(0, "utf8").trim().split(/\\s+/).map(Number);\nconsole.log(a + b);\n',
+  PYTHON: 'a, b = map(int, input().split())\nprint(a + b)\n',
   JAVA: `import java.util.*;
 public class Main {
   public static void main(String[] args) {
@@ -22,40 +25,81 @@ public class Main {
   CPP: '#include <iostream>\nusing namespace std;\nint main() { int a,b; cin>>a>>b; cout<<a+b<<endl; return 0; }\n',
 };
 
+type SubmitContext = {
+  problemId: string;
+  title: string;
+  judgeMode: string;
+  judgeModeLocked: boolean;
+  language: string;
+  contest?: { id: string; title: string; judgeMode: string };
+};
+
 export function SubmitPage() {
-  const { slug } = useParams();
+  const { number } = useParams();
+  const [searchParams] = useSearchParams();
+  const contestId = searchParams.get('contestId') ?? undefined;
   const nav = useNavigate();
+  const { t } = useTranslation();
   const [form] = Form.useForm();
-  const { data: problem } = useQuery({
-    queryKey: ['problem', slug],
-    queryFn: () =>
-      api<{ id: string; title?: string; defaultJudgeMode?: string }>(`/problems/${slug}`),
-    enabled: Boolean(slug),
+
+  const ctx = useQuery({
+    queryKey: ['submit-context', number, contestId],
+    queryFn: () => {
+      const q = contestId ? `?contestId=${encodeURIComponent(contestId)}` : '';
+      return api<SubmitContext>(`/problems/${number}/submit-context${q}`);
+    },
+    enabled: Boolean(number),
   });
 
-  useBreadcrumbLabel(problem?.title ?? slug);
+  useBreadcrumbLabel(ctx.data?.title ?? (number ? `#${number}` : undefined));
 
   useEffect(() => {
-    if (problem?.defaultJudgeMode) {
-      form.setFieldValue('judgeMode', problem.defaultJudgeMode);
-    }
-  }, [problem, form]);
+    if (!ctx.data) return;
+    const lang = ctx.data.language;
+    form.setFieldsValue({
+      language: lang,
+      judgeMode: ctx.data.judgeMode,
+      sourceCode: TEMPLATES[lang] ?? TEMPLATES.PYTHON,
+    });
+  }, [ctx.data, form]);
 
   const mutate = useMutation({
-    mutationFn: (body: unknown) =>
-      api<{ id: string }>('/submissions', {
+    mutationFn: (body: {
+      problemId: string;
+      language: string;
+      judgeMode: string;
+      sourceCode: string;
+      contestId?: string;
+    }) =>
+      api<{ number: number }>('/submissions', {
         method: 'POST',
         body: JSON.stringify(body),
       }),
-    onSuccess: (res) => nav(`/submissions/${res.id}`),
-    onError: (e) => message.error(e instanceof Error ? e.message : 'Error'),
+    onSuccess: (res) => nav(`/submissions/${res.number}`),
+    onError: (e) => appMessage.error(e instanceof Error ? e.message : 'Error'),
   });
 
   const language = Form.useWatch('language', form) ?? 'PYTHON';
   const sourceCode = Form.useWatch('sourceCode', form) ?? TEMPLATES.PYTHON;
+  const locked = ctx.data?.judgeModeLocked ?? false;
 
   return (
-    <Card title={`Submit — ${slug}`}>
+    <Card
+      title={ctx.data?.title ?? (number ? `Submit — #${number}` : 'Submit')}
+      loading={ctx.isLoading}
+    >
+      {ctx.data?.contest && (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={t('submit.contestMode', {
+            title: ctx.data.contest.title,
+            mode: ctx.data.contest.judgeMode,
+          })}
+        />
+      )}
+
       <Form
         form={form}
         layout="vertical"
@@ -66,28 +110,34 @@ export function SubmitPage() {
         }}
         onFinish={(v) =>
           mutate.mutate({
-            problemId: problem?.id,
+            problemId: ctx.data!.problemId,
             language: v.language,
             judgeMode: v.judgeMode,
             sourceCode: v.sourceCode,
+            contestId,
           })
         }
       >
-        <Form.Item name="language" label="Language">
+        <Form.Item name="language" label={t('submit.language')}>
           <Select
             options={LANGS.map((l) => ({ value: l, label: l }))}
             onChange={(l) => form.setFieldValue('sourceCode', TEMPLATES[l] ?? '')}
           />
         </Form.Item>
-        <Form.Item name="judgeMode" label="Mode">
+        <Form.Item
+          name="judgeMode"
+          label={t('submit.judgeMode')}
+          extra={locked ? t('submit.judgeModeLocked') : undefined}
+        >
           <Select
+            disabled={locked}
             options={[
               { value: 'ACM', label: 'ACM' },
               { value: 'OI', label: 'OI' },
             ]}
           />
         </Form.Item>
-        <Form.Item name="sourceCode" label="Code" rules={[{ required: true }]}>
+        <Form.Item name="sourceCode" label={t('submit.code')} rules={[{ required: true }]}>
           <CodeEditor
             language={language}
             value={sourceCode}
@@ -95,7 +145,7 @@ export function SubmitPage() {
           />
         </Form.Item>
         <Button type="primary" htmlType="submit" loading={mutate.isPending}>
-          Submit
+          {t('problems.submit')}
         </Button>
       </Form>
     </Card>

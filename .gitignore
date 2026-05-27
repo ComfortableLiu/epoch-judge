@@ -6,6 +6,7 @@ build
 .yarn/install-state.gz
 .env
 .env.local
+.env.remote-judge
 data/
 *.log
 coverage

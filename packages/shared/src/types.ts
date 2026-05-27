@@ -21,17 +21,17 @@ export interface UserProfileDto {
 
 export interface ProblemSummaryDto {
   id: string;
-  slug: string;
+  number: number;
   title: string;
   difficulty: number;
   visibility: string;
-  defaultJudgeMode: JudgeMode;
   timeLimitMs: number;
   memoryLimitKb: number;
 }
 
 export interface SubmissionDto {
   id: string;
+  number: number;
   problemId: string;
   userId: string;
   language: Language;

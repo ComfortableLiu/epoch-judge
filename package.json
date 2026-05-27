@@ -19,6 +19,7 @@
     "start:api": "yarn workspace @epoch-judge/api start",
     "start:judge": "yarn workspace @epoch-judge/judge start",
     "deploy": "bash scripts/deploy.sh",
+    "deploy:judge": "bash scripts/deploy-remote-judge.sh",
     "db:migrate": "yarn workspace @epoch-judge/db migrate:deploy",
     "db:seed": "yarn workspace @epoch-judge/db seed",
     "db:setup": "yarn db:migrate && yarn db:seed",

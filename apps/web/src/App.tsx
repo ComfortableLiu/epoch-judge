@@ -30,9 +30,9 @@ export function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/problems" element={<ProblemsPage />} />
-              <Route path="/problems/:slug" element={<ProblemDetailPage />} />
+              <Route path="/problems/:number" element={<ProblemDetailPage />} />
               <Route
-                path="/problems/:slug/submit"
+                path="/problems/:number/submit"
                 element={
                   <AuthGuard>
                     <SubmitPage />
@@ -48,7 +48,7 @@ export function App() {
                 }
               />
               <Route
-                path="/submissions/:id"
+                path="/submissions/:number"
                 element={
                   <AuthGuard>
                     <SubmissionDetailPage />
@@ -56,7 +56,7 @@ export function App() {
                 }
               />
               <Route path="/contests" element={<ContestsPage />} />
-              <Route path="/contests/:slug" element={<ContestDetailPage />} />
+              <Route path="/contests/:number" element={<ContestDetailPage />} />
               <Route
                 path="/settings"
                 element={

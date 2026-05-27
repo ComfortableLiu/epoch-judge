@@ -14,50 +14,46 @@ type RouteBuilder = (
 
 const ROUTES: { pattern: string; build: RouteBuilder }[] = [
   {
-    pattern: '/problems/:slug/submit',
+    pattern: '/problems/:number/submit',
     build: (p, dynamic, t) => {
-      const slug = p.slug!;
-      const problemLabel = dynamic ?? slug;
+      const num = p.number!;
+      const problemLabel = dynamic ?? `#${num}`;
       return [
         { key: 'problems', title: <Link to="/problems">{t('nav.problems')}</Link> },
         {
           key: 'problem',
-          title: <Link to={`/problems/${slug}`}>{problemLabel}</Link>,
+          title: <Link to={`/problems/${num}`}>{problemLabel}</Link>,
         },
         { key: 'submit', title: t('problems.submit') },
       ];
     },
   },
   {
-    pattern: '/problems/:slug',
+    pattern: '/problems/:number',
     build: (p, dynamic, t) => {
-      const slug = p.slug!;
-      const label = dynamic ?? slug;
+      const num = p.number!;
+      const label = dynamic ?? `#${num}`;
       return [
         { key: 'problems', title: <Link to="/problems">{t('nav.problems')}</Link> },
         {
           key: 'problem',
-          title: <Link to={`/problems/${slug}`}>{label}</Link>,
+          title: <Link to={`/problems/${num}`}>{label}</Link>,
         },
       ];
     },
   },
   {
-    pattern: '/submissions/:id',
-    build: (p, dynamic, t) => {
-      const id = p.id!;
-      const short = id.length > 8 ? `${id.slice(0, 8)}…` : id;
-      return [
-        { key: 'submissions', title: <Link to="/submissions">{t('nav.submissions')}</Link> },
-        { key: 'submission', title: dynamic ?? short },
-      ];
-    },
+    pattern: '/submissions/:number',
+    build: (p, dynamic, t) => [
+      { key: 'submissions', title: <Link to="/submissions">{t('nav.submissions')}</Link> },
+      { key: 'submission', title: dynamic ?? `#${p.number}` },
+    ],
   },
   {
-    pattern: '/contests/:slug',
+    pattern: '/contests/:number',
     build: (p, dynamic, t) => [
       { key: 'contests', title: <Link to="/contests">{t('nav.contests')}</Link> },
-      { key: 'contest', title: dynamic ?? p.slug! },
+      { key: 'contest', title: dynamic ?? `#${p.number}` },
     ],
   },
   { pattern: '/problems', build: (_, __, t) => [{ key: 'problems', title: t('nav.problems') }] },
@@ -67,6 +63,7 @@ const ROUTES: { pattern: string; build: RouteBuilder }[] = [
     build: (_, __, t) => [{ key: 'submissions', title: t('nav.submissions') }],
   },
   { pattern: '/settings', build: (_, __, t) => [{ key: 'settings', title: t('settings.title') }] },
+  { pattern: '/admin', build: (_, __, t) => [{ key: 'admin', title: t('nav.admin') }] },
   { pattern: '/profile', build: (_, __, t) => [{ key: 'profile', title: t('nav.profile') }] },
   { pattern: '/admin', build: (_, __, t) => [{ key: 'admin', title: t('nav.admin') }] },
   { pattern: '/login', build: (_, __, t) => [{ key: 'login', title: t('nav.login') }] },

@@ -33,15 +33,14 @@ async function main() {
   });
 
   await prisma.problem.upsert({
-    where: { slug: 'a-plus-b' },
+    where: { number: 1 },
     create: {
-      slug: 'a-plus-b',
+      number: 1,
       title: 'A+B Problem',
       statement:
         'Given two integers A and B, output their sum.\n\n## Input\nTwo integers.\n\n## Output\nOne integer.',
       difficulty: 1,
       visibility: 'PUBLIC',
-      defaultJudgeMode: 'ACM',
       timeLimitMs: 1000,
       memoryLimitKb: 262144,
     },
@@ -49,7 +48,7 @@ async function main() {
   });
 
   console.log(`Seeded admin user: ${username}`);
-  console.log('Seeded sample problem: a-plus-b');
+  console.log('Seeded sample problem #1: A+B Problem');
 }
 
 main()

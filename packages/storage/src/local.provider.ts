@@ -7,8 +7,12 @@ export class LocalStorageProvider implements StorageProvider {
 
   private resolve(key: string): string {
     const normalized = path.normalize(key).replace(/^(\.\.(\/|\\|$))+/, '');
-    const full = path.join(this.root, normalized);
-    if (!full.startsWith(path.resolve(this.root))) {
+    const rootResolved = path.resolve(this.root);
+    const full = path.resolve(this.root, normalized);
+    const prefix = rootResolved.endsWith(path.sep)
+      ? rootResolved
+      : rootResolved + path.sep;
+    if (full !== rootResolved && !full.startsWith(prefix)) {
       throw new Error('Invalid storage key');
     }
     return full;

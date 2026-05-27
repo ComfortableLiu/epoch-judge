@@ -10,7 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Observable } from 'rxjs';
+import { from, mergeMap, Observable } from 'rxjs';
+import { Role } from '@epoch-judge/db';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Locale } from '../common/locale.decorator';
 import { RedisService } from '../redis/redis.service';
@@ -30,11 +31,11 @@ export class SubmissionsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
-    @Req() req: { user: { id: string } },
+    @Req() req: { user: { id: string; role: Role } },
     @Body() dto: CreateSubmissionDto,
     @Locale() locale: string,
   ) {
-    return this.submissions.create(req.user.id, dto, locale);
+    return this.submissions.create(req.user, dto, locale);
   }
 
   @ApiBearerAuth()
@@ -49,34 +50,42 @@ export class SubmissionsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  detail(@Req() req: { user: { id: string } }, @Param('id') id: string) {
-    return this.submissions.getDetail(id, req.user.id);
+  @Sse(':number/stream')
+  stream(@Param('number') numberParam: string): Observable<MessageEvent> {
+    return from(this.submissions.resolveByNumber(numberParam)).pipe(
+      mergeMap((sub) => {
+        const submissionId = sub.id;
+        return new Observable<MessageEvent>((subscriber) => {
+          const handler = (_channel: string, message: string) => {
+            try {
+              const payload = JSON.parse(message) as { submissionId: string };
+              if (payload.submissionId !== submissionId) return;
+              subscriber.next({ data: message } as MessageEvent);
+              if ((payload as { type?: string }).type === 'done') {
+                subscriber.complete();
+              }
+            } catch {
+              /* ignore */
+            }
+          };
+          void this.redis.subscriber.subscribe(RedisKeys.judgeEvents());
+          this.redis.subscriber.on('message', handler);
+          return () => {
+            this.redis.subscriber.off('message', handler);
+            void this.redis.subscriber.unsubscribe(RedisKeys.judgeEvents());
+          };
+        });
+      }),
+    );
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Sse(':id/stream')
-  stream(@Param('id') submissionId: string): Observable<MessageEvent> {
-    return new Observable((subscriber) => {
-      const handler = (_channel: string, message: string) => {
-        try {
-          const payload = JSON.parse(message) as { submissionId: string };
-          if (payload.submissionId !== submissionId) return;
-          subscriber.next({ data: message } as MessageEvent);
-          if ((payload as { type?: string }).type === 'done') {
-            subscriber.complete();
-          }
-        } catch {
-          /* ignore */
-        }
-      };
-      void this.redis.subscriber.subscribe(RedisKeys.judgeEvents());
-      this.redis.subscriber.on('message', handler);
-      return () => {
-        this.redis.subscriber.off('message', handler);
-        void this.redis.subscriber.unsubscribe(RedisKeys.judgeEvents());
-      };
-    });
+  @Get(':number')
+  detail(
+    @Req() req: { user: { id: string } },
+    @Param('number') number: string,
+  ) {
+    return this.submissions.getDetailByNumber(number, req.user.id);
   }
 }

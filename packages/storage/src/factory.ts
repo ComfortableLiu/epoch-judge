@@ -1,6 +1,24 @@
+import { findMonorepoEnvPath, loadMonorepoEnv } from '@epoch-judge/shared';
+import { dirname, isAbsolute, resolve } from 'path';
 import { LocalStorageProvider } from './local.provider';
 import { S3StorageProvider } from './s3.provider';
 import type { StorageConfig, StorageProvider } from './types';
+
+/**
+ * Resolve STORAGE_LOCAL_ROOT relative to monorepo root (directory containing `.env`),
+ * not process.cwd(), so API and Judge workers share the same files.
+ */
+export function resolveLocalStorageRoot(
+  localRoot?: string,
+  cwd = process.cwd(),
+): string {
+  const raw = localRoot ?? './data/testcases';
+  if (isAbsolute(raw)) return resolve(raw);
+  loadMonorepoEnv();
+  const envPath = findMonorepoEnvPath(cwd);
+  const base = envPath ? dirname(envPath) : cwd;
+  return resolve(base, raw);
+}
 
 export function createStorageProvider(config: StorageConfig): StorageProvider {
   if (config.type === 's3') {
@@ -9,7 +27,7 @@ export function createStorageProvider(config: StorageConfig): StorageProvider {
     }
     return new S3StorageProvider(config.s3.bucket, config.s3);
   }
-  const root = config.localRoot ?? './data/testcases';
+  const root = resolveLocalStorageRoot(config.localRoot);
   return new LocalStorageProvider(root);
 }
 
@@ -30,6 +48,6 @@ export function storageConfigFromEnv(env: NodeJS.ProcessEnv = process.env): Stor
   }
   return {
     type: 'local',
-    localRoot: env.STORAGE_LOCAL_ROOT ?? './data/testcases',
+    localRoot: resolveLocalStorageRoot(env.STORAGE_LOCAL_ROOT),
   };
 }

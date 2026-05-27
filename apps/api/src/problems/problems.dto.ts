@@ -1,19 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { JudgeMode, ProblemVisibility } from '@epoch-judge/db';
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { ProblemVisibility } from '@epoch-judge/db';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateProblemDto {
   @ApiProperty()
   @IsString()
-  slug!: string;
-
-  @ApiProperty()
-  @IsString()
   title!: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  statement!: string;
+  statement?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -21,23 +26,28 @@ export class CreateProblemDto {
   @Min(1)
   difficulty?: number;
 
-  @ApiProperty({ enum: ProblemVisibility })
+  @ApiProperty({ enum: ProblemVisibility, required: false })
+  @IsOptional()
   @IsEnum(ProblemVisibility)
-  visibility!: ProblemVisibility;
+  visibility?: ProblemVisibility;
 
-  @ApiProperty({ enum: JudgeMode })
-  @IsEnum(JudgeMode)
-  defaultJudgeMode!: JudgeMode;
-
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsInt()
   @Min(100)
-  timeLimitMs!: number;
+  timeLimitMs?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsInt()
   @Min(1024)
-  memoryLimitKb!: number;
+  memoryLimitKb?: number;
+
+  @ApiProperty({ required: false, type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }
 
 export class UpdateProblemDto {
@@ -53,6 +63,85 @@ export class UpdateProblemDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  difficulty?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsEnum(ProblemVisibility)
   visibility?: ProblemVisibility;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(100)
+  timeLimitMs?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(1024)
+  memoryLimitKb?: number;
+
+  @ApiProperty({ required: false, type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+}
+
+export class CreateTestcaseDto {
+  @ApiProperty()
+  @IsString()
+  input!: string;
+
+  @ApiProperty()
+  @IsString()
+  output!: string;
+
+  @ApiProperty()
+  @IsInt()
+  @Min(0)
+  score!: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isSample?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  ordinal?: number;
+}
+
+export class UpdateTestcaseDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  input?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  output?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  score?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isSample?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  ordinal?: number;
 }

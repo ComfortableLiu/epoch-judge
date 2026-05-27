@@ -4,6 +4,7 @@ import { ensureRedisUrl, getRedisConnectionOptions } from './redis-config';
 
 export interface CreateRedisClientOptions {
   maxRetriesPerRequest?: number | null;
+  connectTimeout?: number;
   /** 订阅客户端建议设为 true */
   lazyConnect?: boolean;
 }
@@ -19,10 +20,12 @@ export function createRedisClient(
     port: base.port,
     password: base.password,
     db: base.db,
+    connectTimeout: options.connectTimeout ?? 10_000,
+    enableReadyCheck: true,
     maxRetriesPerRequest:
       options.maxRetriesPerRequest === null
         ? null
-        : (options.maxRetriesPerRequest ?? undefined),
+        : (options.maxRetriesPerRequest ?? 3),
     lazyConnect: options.lazyConnect,
   };
   return new Redis(redisOptions);
