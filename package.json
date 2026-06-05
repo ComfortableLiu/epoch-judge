@@ -26,7 +26,7 @@
     "db:sync": "yarn db:migrate",
     "db:generate": "yarn workspace @epoch-judge/db generate",
     "lint": "yarn workspaces foreach -Apt run lint",
-    "test": "yarn workspace @epoch-judge/storage test",
+    "test": "yarn workspace @epoch-judge/storage test && yarn workspace @epoch-judge/api test",
     "smoke": "bash scripts/smoke-test.sh",
     "migrate:contest-passwords": "tsx scripts/migrate-contest-passwords.ts"
   }
