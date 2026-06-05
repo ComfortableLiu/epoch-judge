@@ -17,7 +17,9 @@
 ## 比赛（BREAKING）
 
 - 路由与 API 使用自增数字 **`number`**，不再使用 `slug`：`GET /contests/:number`、榜单 `/contests/:number/scoreboard`。
-- 可选 **`accessPassword`**（明文存储）；`POST /contests/:number/verify-password` 校验后写入报名记录的 `passwordVerified`。
+- 可选 **`accessPassword`**（bcrypt 哈希存储）；`POST /contests/:number/verify-password` 校验后写入报名记录的 `passwordVerified`。
+- 管理端 API 响应中不返回密码哈希值，仅返回 `requiresPassword` 布尔字段。
+- **迁移**：若从旧版本升级（明文密码），运行 `yarn migrate:contest-passwords` 将已有明文密码批量哈希（幂等，可重复执行）。
 - 管理端 `POST/PATCH /admin/contests` 无需 slug；请求体可含 `accessPassword`、`problemIds`（顺序即 A/B/C）。
 - **报名快照**：`ContestRegistration.displayNameSnapshot` 在首次报名/验证密码/管理员添加时冻结（`displayName` 或 `username`），榜单展示不随用户改昵称变化。
 - **打星队伍**：`ContestRegistration.isStarTeam`；管理端 `GET/POST/PATCH /admin/contests/:id/registrations`；榜单名前加 `*`，不计入官方排名与成绩（`rank`、`score`/`solved`/`penalty` 为空），单独展示在「打星队伍」区块。
@@ -84,6 +86,46 @@ testdata/
 - 昵称字段：`User.displayName`（可空、**不要求唯一**，最长 64 字符）
 - 个人资料：`GET /users/me`；`PATCH /users/me` 可更新 `displayName`、`email`、判题偏好等
 - 展示：提交记录等对外显示优先 `displayName`，为空则回退 `username`
+
+### 个人数据面板（需登录）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/users/me/stats` | 汇总：总提交、已通过/已尝试题数、通过率、终态分布、参加过的比赛列表 |
+| `GET` | `/users/me/stats/solved-problems?page=&pageSize=` | 已通过题目分页（题号、标题、首次 AC 时间、是否比赛题） |
+
+`summary.passRatePercent` = 不同题目 AC 数 ÷ 不同题目终态提交数 × 100（无尝试时为 0）。比赛参与 = 有报名记录或在该比赛下有提交。
+
+## 认证与 Token
+
+- 登录/注册：`POST /auth/login`、`POST /auth/register` 返回 `accessToken`（JWT）。
+- 刷新：`POST /auth/refresh`，请求头带 `Authorization: Bearer <当前或已过期 token>`；签名有效且过期不超过 30 天时签发新 token。
+- 前端在 token 将过期（15 分钟内）时主动 refresh；接口返回 401 时会先尝试 refresh 一次，失败则清除 `epoch.token` 并跳转登录页。
+
+## 速率限制
+
+所有 HTTP 端点默认启用基于 IP 的速率限制（`@nestjs/throttler`）：
+
+| 端点 | 默认限制 |
+|------|----------|
+| 全局 | 60 次/分钟 |
+| `POST /auth/login`、`POST /auth/register` | 5 次/分钟 |
+| `POST /submissions` | 10 次/分钟 |
+| `GET /submissions/:number/stream`（SSE） | 不受限流 |
+
+环境变量配置：
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `THROTTLE_ENABLED` | `true` | 设为 `false` 关闭限流 |
+| `THROTTLE_TTL` | `60` | 限流窗口（秒） |
+| `THROTTLE_LIMIT` | `60` | 全局每窗口请求数 |
+| `THROTTLE_AUTH_LIMIT` | `5` | 认证端点每窗口请求数 |
+| `THROTTLE_SUBMISSION_LIMIT` | `10` | 提交端点每窗口请求数 |
+| `THROTTLE_STORAGE` | `memory` | 存储后端；多实例部署设为 `redis` |
+| `TRUST_PROXY` | `1` | nginx 代理跳数；直连设为 `false` |
+
+多实例部署时需设置 `THROTTLE_STORAGE=redis` 以共享限流计数，否则各实例独立计数。
 
 ## 账号密码
 

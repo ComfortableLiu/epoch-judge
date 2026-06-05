@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JudgeMode, ContestVisibility, Role } from '@epoch-judge/db';
+import * as bcrypt from 'bcryptjs';
 import { t } from '../common/messages';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -51,6 +52,11 @@ function contestListStatus(
   if (now < startAt) return 'upcoming';
   if (now > endAt) return 'ended';
   return 'running';
+}
+
+async function hashPassword(plain: string): Promise<string> {
+  const rounds = Number(process.env.BCRYPT_ROUNDS ?? 10);
+  return bcrypt.hash(plain, rounds);
 }
 
 @Injectable()
@@ -174,7 +180,7 @@ export class ContestsService {
   }
 
   async listAdmin() {
-    return this.prisma.client.contest.findMany({
+    const rows = await this.prisma.client.contest.findMany({
       orderBy: { startAt: 'desc' },
       select: {
         id: true,
@@ -192,6 +198,10 @@ export class ContestsService {
         },
       },
     });
+    return rows.map(({ accessPassword, ...rest }) => ({
+      ...rest,
+      requiresPassword: Boolean(accessPassword?.length),
+    }));
   }
 
   async getAdminById(id: string) {
@@ -217,7 +227,7 @@ export class ContestsService {
       startAt: contest.startAt.toISOString(),
       endAt: contest.endAt.toISOString(),
       freezeAt: contest.freezeAt?.toISOString() ?? null,
-      accessPassword: contest.accessPassword,
+      requiresPassword: Boolean(contest.accessPassword?.length),
       problemIds: contest.problems.map((p) => p.problemId),
       problems: contest.problems.map((p) => ({
         problemId: p.problemId,
@@ -256,7 +266,9 @@ export class ContestsService {
         endAt,
         freezeAt,
         createdById,
-        accessPassword: dto.accessPassword?.trim() || null,
+        accessPassword: dto.accessPassword?.trim()
+          ? await hashPassword(dto.accessPassword.trim())
+          : null,
         problems: dto.problemIds?.length
           ? {
               create: dto.problemIds.map((problemId, ordinal) => ({
@@ -317,7 +329,8 @@ export class ContestsService {
       if (dto.endAt !== undefined) data.endAt = endAt;
       if (dto.freezeAt !== undefined) data.freezeAt = freezeAt;
       if (dto.accessPassword !== undefined) {
-        data.accessPassword = dto.accessPassword?.trim() || null;
+        const trimmed = dto.accessPassword?.trim();
+        data.accessPassword = trimmed ? await hashPassword(trimmed) : null;
       }
 
       await tx.contest.update({
@@ -573,7 +586,8 @@ export class ContestsService {
     if (!this.needsPassword(contest)) {
       return { ok: true };
     }
-    if (password !== contest.accessPassword) {
+    const matches = await bcrypt.compare(password, contest.accessPassword!);
+    if (!matches) {
       throw new ForbiddenException('Invalid contest password');
     }
     await this.ensureRegistration(contest.id, userId, {
