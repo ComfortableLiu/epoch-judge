@@ -44,8 +44,11 @@ export class SubmissionsService {
     if (!SUPPORTED.has(dto.language)) {
       throw new BadRequestException('Unsupported language');
     }
-    const violation = scanSourceCode(dto.language, dto.sourceCode);
-    if (violation) {
+    const scanResult = scanSourceCode(dto.language, dto.sourceCode);
+    if (scanResult.blocked) {
+      this.logger.warn(
+        `Blocked submission: ${scanResult.violations.length} violation(s) — ${scanResult.violations.map((v) => `${v.rule}@${v.line}:${v.column}`).join(', ')}`,
+      );
       throw new BadRequestException({
         messageKey: 'security.forbidden_pattern',
         message: t('security.forbidden_pattern', locale),
