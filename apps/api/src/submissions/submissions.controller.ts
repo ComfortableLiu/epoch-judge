@@ -10,9 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { from, mergeMap, Observable } from 'rxjs';
 import { Role } from '@epoch-judge/db';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
+import { SUBMISSION_THROTTLE } from '../common/throttle.config';
 import { Locale } from '../common/locale.decorator';
 import { RedisService } from '../redis/redis.service';
 import { RedisKeys } from '@epoch-judge/redis';
@@ -29,6 +31,7 @@ export class SubmissionsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Throttle(SUBMISSION_THROTTLE)
   @Post()
   create(
     @Req() req: { user: { id: string; role: Role } },
@@ -50,6 +53,7 @@ export class SubmissionsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   @Sse(':number/stream')
   stream(@Param('number') numberParam: string): Observable<MessageEvent> {
     return from(this.submissions.resolveByNumber(numberParam)).pipe(
