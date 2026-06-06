@@ -30,6 +30,10 @@ export const RedisKeys = {
   judgeEvents: () => redisKey('judge', 'events'),
   /** 全局在途判题计数 */
   judgeInflight: () => redisKey('judge', 'inflight'),
+  /** SSE 用户连接数（Sorted Set，score=时间戳，member=instanceId:connectionId） */
+  sseConnections: (userId: string) => redisKey('sse', 'conns', userId),
+  /** SSE 连接 eviction Pub/Sub 频道 */
+  sseEvict: () => redisKey('sse', 'evict'),
 } as const;
 
 /** BullMQ Queue / Worker 共用选项 */

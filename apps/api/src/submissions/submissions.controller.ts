@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import * as crypto from 'crypto';
 import { from, mergeMap, Observable } from 'rxjs';
 import { Role } from '@epoch-judge/db';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
@@ -19,6 +20,7 @@ import { Locale } from '../common/locale.decorator';
 import { RedisService } from '../redis/redis.service';
 import { RedisKeys } from '@epoch-judge/redis';
 import { CreateSubmissionDto } from './submissions.dto';
+import { SseConnectionService } from './sse-connection.service';
 import { SubmissionsService } from './submissions.service';
 
 @ApiTags('submissions')
@@ -27,6 +29,7 @@ export class SubmissionsController {
   constructor(
     private readonly submissions: SubmissionsService,
     private readonly redis: RedisService,
+    private readonly sseConns: SseConnectionService,
   ) {}
 
   @ApiBearerAuth()
@@ -55,11 +58,20 @@ export class SubmissionsController {
   @UseGuards(JwtAuthGuard)
   @SkipThrottle()
   @Sse(':number/stream')
-  stream(@Param('number') numberParam: string): Observable<MessageEvent> {
+  stream(
+    @Req() req: { user: { id: string } },
+    @Param('number') numberParam: string,
+  ): Observable<MessageEvent> {
+    const userId = req.user.id;
+    const connectionId = crypto.randomUUID();
+
     return from(this.submissions.resolveByNumber(numberParam)).pipe(
       mergeMap((sub) => {
         const submissionId = sub.id;
         return new Observable<MessageEvent>((subscriber) => {
+          // Register connection for limit tracking
+          void this.sseConns.registerConnection(userId, connectionId, subscriber);
+
           const handler = (_channel: string, message: string) => {
             try {
               const payload = JSON.parse(message) as { submissionId: string };
@@ -77,6 +89,7 @@ export class SubmissionsController {
           return () => {
             this.redis.subscriber.off('message', handler);
             void this.redis.subscriber.unsubscribe(RedisKeys.judgeEvents());
+            void this.sseConns.unregisterConnection(userId, connectionId);
           };
         });
       }),
