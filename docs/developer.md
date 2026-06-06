@@ -79,6 +79,15 @@ NestJS 应用内置 CORS 中间件，通过环境变量配置：
 - 连接追踪 key 自动设置 1 小时 TTL，崩溃场景下不会永久泄漏
 - 多实例部署通过 Redis Pub/Sub 实现跨实例 eviction
 
+## 默认凭证检查
+
+API 启动时自动检测以下环境变量是否仍为默认值：`JWT_SECRET`、`DB_PASSWORD`、`REDIS_PASSWORD`、`SEED_ADMIN_PASSWORD`。
+
+- 默认模式：检测到默认值时输出醒目黄色警告，继续启动
+- 强制模式（`ENFORCE_SECURE_CREDENTIALS=true`）：检测到默认值时输出红色错误并拒绝启动
+
+生产环境建议设置 `ENFORCE_SECURE_CREDENTIALS=true`。
+
 ## 题目导入 ZIP 结构
 
 ```

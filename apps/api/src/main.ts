@@ -1,8 +1,10 @@
 import { syncDatabaseSchema } from '@epoch-judge/db';
 import { loadMonorepoEnv } from '@epoch-judge/shared';
 import { ValidationPipe } from '@nestjs/common';
+import { checkDefaultCredentials } from './common/startup/credential-check';
 
 loadMonorepoEnv();
+checkDefaultCredentials();
 syncDatabaseSchema();
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
