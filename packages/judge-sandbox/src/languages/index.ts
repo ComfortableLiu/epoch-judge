@@ -73,7 +73,7 @@ async function compileIfNeeded(
       ['Main.java'],
       { cwd: workDir, timeoutMs, maxBufferBytes: maxBuf },
     );
-    if (stderr.includes('error')) {
+    if (stderr.includes('error') || stderr.includes('错误')) {
       return {
         verdict: 'COMPILE_ERROR',
         stdout: '',

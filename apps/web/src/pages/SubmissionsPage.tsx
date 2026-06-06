@@ -4,7 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api } from '../api/client';
+import { api, getToken, isTokenUsable } from '../api/client';
 import { formatEntityId } from '../lib/format-entity-id';
 import {
   hasPendingSubmissions,
@@ -28,6 +28,7 @@ export function SubmissionsPage() {
   const { data, isPending } = useQuery({
     queryKey: ['submissions'],
     queryFn: () => api<SubmissionRow[]>('/submissions'),
+    enabled: isTokenUsable(getToken()),
     placeholderData: keepPreviousData,
     refetchInterval: (query) =>
       hasPendingSubmissions(query.state.data) ? POLL_MS : false,

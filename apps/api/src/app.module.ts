@@ -1,6 +1,9 @@
 import { findMonorepoEnvPath } from '@epoch-judge/shared';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { createThrottleConfig } from './common/throttle.config';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { ContestsModule } from './contests/contests.module';
@@ -20,6 +23,10 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       envFilePath: findMonorepoEnvPath() ?? '.env',
     }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => createThrottleConfig(config),
+    }),
     PrismaModule,
     RedisModule,
     StorageModule,
@@ -32,6 +39,12 @@ import { UsersModule } from './users/users.module';
     JudgeModule,
     AdminModule,
     TemplatesModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

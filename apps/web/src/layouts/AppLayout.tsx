@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '../components/AppBreadcrumb';
 import { AppIcon } from '../components/AppIcon';
 import { BreadcrumbProvider } from '../contexts/BreadcrumbContext';
-import { getToken, setToken } from '../api/client';
+import { clearSessionAndRedirect, isTokenUsable, getToken } from '../api/client';
 import { useThemeMode } from '../hooks/useThemeMode';
 import * as styles from './AppLayout.module.scss';
 
@@ -15,7 +15,7 @@ export function AppLayout() {
   const { resolved } = useThemeMode();
   const nav = useNavigate();
   const loc = useLocation();
-  const loggedIn = Boolean(getToken());
+  const loggedIn = isTokenUsable(getToken());
   const menuTheme = resolved === 'dark' ? 'dark' : 'light';
 
   const items = [
@@ -59,10 +59,7 @@ export function AppLayout() {
               </Button>
               <Button
                 type="link"
-                onClick={() => {
-                  setToken(null);
-                  nav('/login');
-                }}
+                onClick={() => clearSessionAndRedirect()}
               >
                 <AppIcon name="logout" /> {t('nav.logout')}
               </Button>

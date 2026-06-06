@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Descriptions, Form, Input, Typography } from 'antd';
+import { Button, Card, Descriptions, Form, Input, Tabs, Typography } from 'antd';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { appMessage } from '../lib/app-message';
 import { api } from '../api/client';
+import { ProfileStatsPanel } from './ProfileStatsPanel';
 
 const DISPLAY_NAME_MAX = 64;
 
@@ -14,7 +15,7 @@ type Profile = {
   role: string;
 };
 
-export function ProfilePage() {
+function ProfileSettingsTab() {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const [profileForm] = Form.useForm<{ displayName: string }>();
@@ -152,5 +153,27 @@ export function ProfilePage() {
         </Button>
       </Form>
     </Card>
+  );
+}
+
+export function ProfilePage() {
+  const { t } = useTranslation();
+
+  return (
+    <Tabs
+      defaultActiveKey="settings"
+      items={[
+        {
+          key: 'settings',
+          label: t('profile.tabSettings'),
+          children: <ProfileSettingsTab />,
+        },
+        {
+          key: 'stats',
+          label: t('profile.tabStats'),
+          children: <ProfileStatsPanel />,
+        },
+      ]}
+    />
   );
 }

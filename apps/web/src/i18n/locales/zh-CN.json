@@ -41,7 +41,29 @@
     "newPasswordMin": "至少 8 位",
     "confirmPasswordRequired": "请再次输入新密码",
     "passwordMismatch": "两次输入不一致",
-    "updatePassword": "更新密码"
+    "updatePassword": "更新密码",
+    "tabSettings": "资料",
+    "tabStats": "数据面板",
+    "stats": {
+      "hint": "通过率 = 已通过的不同题目数 ÷ 曾提交至终态的不同题目数。",
+      "totalSubmissions": "总提交数",
+      "solvedCount": "已通过题目",
+      "attemptedCount": "已尝试题目",
+      "passRate": "通过率",
+      "verdictTitle": "提交结果分布",
+      "solvedTitle": "已通过题目",
+      "contestsTitle": "参加过的比赛",
+      "noContests": "暂无比赛记录",
+      "colFirstAc": "首次通过",
+      "colContext": "场景",
+      "colContest": "比赛",
+      "colContestStatus": "状态",
+      "colSubmissions": "提交数",
+      "colContestSolved": "通过题数",
+      "colContestTime": "时间",
+      "contestTag": "比赛",
+      "practiceTag": "练习"
+    }
   },
   "settings": {
     "title": "设置",

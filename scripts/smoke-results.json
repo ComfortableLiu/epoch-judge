@@ -1,0 +1,217 @@
+{
+  "passed": 41,
+  "failed": 1,
+  "total": 42,
+  "results": [
+    {
+      "name": "未登录-首页加载",
+      "status": "✅ PASS",
+      "detail": "title=\"纪元 EpochJudge\""
+    },
+    {
+      "name": "未登录-题目列表",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-题目详情",
+      "status": "✅ PASS",
+      "detail": "title=true, Given=true, sum=true"
+    },
+    {
+      "name": "未登录-比赛列表",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-比赛详情",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-提交记录跳转登录",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-设置页跳转登录",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-个人资料跳转登录",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-管理后台跳转登录",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "未登录-无JS运行时错误",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "注册-新用户注册成功",
+      "status": "❌ FAIL",
+      "detail": "url=\"http://localhost:8080/register\""
+    },
+    {
+      "name": "登录-普通用户登录成功",
+      "status": "✅ PASS",
+      "detail": "url=\"http://localhost:8080/problems\""
+    },
+    {
+      "name": "登录后-可访问提交记录",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-登录状态",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-查看题目列表",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-查看题目详情",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-进入提交页面",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-提交代码",
+      "status": "✅ PASS",
+      "detail": "url=\"http://localhost:8080/submissions/16\""
+    },
+    {
+      "name": "USER-查看提交详情",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-查看提交列表",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-设置页面",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-个人资料页面",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "USER-不能访问管理后台",
+      "status": "✅ PASS",
+      "detail": "redirected to \"http://localhost:8080/\""
+    },
+    {
+      "name": "USER-查看比赛详情",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-登录状态",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-进入管理后台",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-题目管理Tab",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-创建新题目",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-比赛管理Tab",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-用户管理Tab",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-编辑用户",
+      "status": "✅ PASS",
+      "detail": "打开编辑弹窗"
+    },
+    {
+      "name": "ADMIN-重判Tab",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-判题节点Tab",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-系统配置Tab",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "ADMIN-查看题目列表",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "EDITOR-登录状态",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "EDITOR-管理后台受ADMIN限制",
+      "status": "✅ PASS",
+      "detail": "redirected to \"http://localhost:8080/\""
+    },
+    {
+      "name": "EDITOR-查看题目列表",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "EDITOR-查看题目详情",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "EDITOR-进入提交页面",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "EDITOR-查看比赛详情",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "EDITOR-提交代码",
+      "status": "✅ PASS",
+      "detail": "url=\"http://localhost:8080/submissions/17\""
+    }
+  ]
+}

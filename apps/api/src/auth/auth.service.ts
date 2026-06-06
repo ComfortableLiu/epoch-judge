@@ -11,6 +11,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { t } from '../common/messages';
 import { LoginDto, RegisterDto } from './auth.dto';
 
+/** 过期后仍允许 refresh 的最长宽限期（秒） */
+const REFRESH_GRACE_SEC = 30 * 24 * 60 * 60;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -70,6 +73,53 @@ export class AuthService {
         message: t('auth.invalid_credentials', locale),
       });
     }
+    return this.tokensFor(user.id, user.username, user.role as Role, locale);
+  }
+
+  /** 用仍有效的签名（可已过期）换取新的 accessToken */
+  async refresh(authorization: string | undefined, locale: string) {
+    const token = authorization?.startsWith('Bearer ')
+      ? authorization.slice(7).trim()
+      : undefined;
+    if (!token) {
+      throw new UnauthorizedException({
+        messageKey: 'auth.unauthorized',
+        message: t('auth.unauthorized', locale),
+      });
+    }
+
+    let payload: JwtPayload;
+    try {
+      payload = this.jwt.verify(token, {
+        ignoreExpiration: true,
+      }) as JwtPayload;
+    } catch {
+      throw new UnauthorizedException({
+        messageKey: 'auth.unauthorized',
+        message: t('auth.unauthorized', locale),
+      });
+    }
+
+    if (payload.exp != null) {
+      const graceDeadline = payload.exp + REFRESH_GRACE_SEC;
+      if (graceDeadline < Math.floor(Date.now() / 1000)) {
+        throw new UnauthorizedException({
+          messageKey: 'auth.unauthorized',
+          message: t('auth.unauthorized', locale),
+        });
+      }
+    }
+
+    const user = await this.prisma.client.user.findUnique({
+      where: { id: payload.sub },
+    });
+    if (!user) {
+      throw new UnauthorizedException({
+        messageKey: 'auth.unauthorized',
+        message: t('auth.unauthorized', locale),
+      });
+    }
+
     return this.tokensFor(user.id, user.username, user.role as Role, locale);
   }
 

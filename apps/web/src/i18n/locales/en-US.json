@@ -41,7 +41,29 @@
     "newPasswordMin": "At least 8 characters",
     "confirmPasswordRequired": "Confirm your new password",
     "passwordMismatch": "Passwords do not match",
-    "updatePassword": "Update password"
+    "updatePassword": "Update password",
+    "tabSettings": "Profile",
+    "tabStats": "Statistics",
+    "stats": {
+      "hint": "Pass rate = distinct accepted problems ÷ distinct problems with a terminal submission.",
+      "totalSubmissions": "Total submissions",
+      "solvedCount": "Solved problems",
+      "attemptedCount": "Attempted problems",
+      "passRate": "Pass rate",
+      "verdictTitle": "Verdict breakdown",
+      "solvedTitle": "Solved problems",
+      "contestsTitle": "Contests joined",
+      "noContests": "No contests yet",
+      "colFirstAc": "First AC",
+      "colContext": "Context",
+      "colContest": "Contest",
+      "colContestStatus": "Status",
+      "colSubmissions": "Submissions",
+      "colContestSolved": "Solved",
+      "colContestTime": "Schedule",
+      "contestTag": "Contest",
+      "practiceTag": "Practice"
+    }
   },
   "settings": {
     "title": "Settings",

@@ -1,12 +1,20 @@
 import { Button, Card, Form, Input } from 'antd';
+import { useEffect } from 'react';
 import { appMessage } from '../lib/app-message';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { api, setToken } from '../api/client';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { api, consumeAuthRedirectMessage, setToken } from '../api/client';
 
 export function LoginPage() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
+
+  useEffect(() => {
+    const msg = consumeAuthRedirectMessage();
+    if (msg) appMessage.warning(msg);
+  }, []);
 
   return (
     <Card title={t('nav.login')} style={{ maxWidth: 400, margin: '0 auto' }}>
@@ -19,8 +27,12 @@ export function LoginPage() {
               body: JSON.stringify(v),
             });
             setToken(res.accessToken);
-            appMessage.success('OK');
-            nav('/problems');
+            appMessage.success('登录成功');
+            const target =
+              redirectTo?.startsWith('/') && !redirectTo.startsWith('//')
+                ? redirectTo
+                : '/problems';
+            nav(target);
           } catch (e) {
             appMessage.error(e instanceof Error ? e.message : 'Error');
           }

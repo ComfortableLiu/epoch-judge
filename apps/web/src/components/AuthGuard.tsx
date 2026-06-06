@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom';
-import { getToken } from '../api/client';
+import { Navigate, useLocation } from 'react-router-dom';
+import { getToken, isTokenUsable } from '../api/client';
 
 export function AuthGuard({
   children,
@@ -8,8 +8,16 @@ export function AuthGuard({
   children: React.ReactNode;
   adminOnly?: boolean;
 }) {
+  const location = useLocation();
   const token = getToken();
-  if (!token) return <Navigate to="/login" replace />;
+
+  if (!isTokenUsable(token)) {
+    const redirect = encodeURIComponent(
+      `${location.pathname}${location.search}`,
+    );
+    return <Navigate to={`/login?redirect=${redirect}`} replace />;
+  }
+
   if (adminOnly) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1] ?? ''));

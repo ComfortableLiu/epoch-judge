@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -23,6 +24,7 @@ import {
   ChangePasswordDto,
   UpdateProfileDto,
 } from './users.dto';
+import { SolvedProblemsQueryDto } from './users-stats.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -52,6 +54,25 @@ export class UsersController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.users.changePassword(req.user.id, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me/stats')
+  myStats(@Req() req: { user: { id: string } }) {
+    return this.users.getMyStats(req.user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me/stats/solved-problems')
+  mySolvedProblems(
+    @Req() req: { user: { id: string } },
+    @Query() query: SolvedProblemsQueryDto,
+  ) {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    return this.users.listMySolvedProblems(req.user.id, page, pageSize);
   }
 
   @ApiBearerAuth()

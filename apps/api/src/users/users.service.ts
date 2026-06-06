@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { Role } from '@epoch-judge/db';
+import { Role, SubmissionStatus } from '@epoch-judge/db';
 import { PrismaService } from '../prisma/prisma.service';
 import { randomBytes } from 'crypto';
 import {
@@ -13,6 +13,29 @@ import {
   ChangePasswordDto,
   UpdateProfileDto,
 } from './users.dto';
+
+const TERMINAL_STATUSES: SubmissionStatus[] = [
+  SubmissionStatus.ACCEPTED,
+  SubmissionStatus.WRONG_ANSWER,
+  SubmissionStatus.TIME_LIMIT_EXCEEDED,
+  SubmissionStatus.MEMORY_LIMIT_EXCEEDED,
+  SubmissionStatus.RUNTIME_ERROR,
+  SubmissionStatus.COMPILE_ERROR,
+  SubmissionStatus.SECURITY_ERROR,
+  SubmissionStatus.SYSTEM_ERROR,
+];
+
+type ContestListStatus = 'upcoming' | 'running' | 'ended';
+
+function contestListStatus(
+  startAt: Date,
+  endAt: Date,
+  now: Date,
+): ContestListStatus {
+  if (now < startAt) return 'upcoming';
+  if (now > endAt) return 'ended';
+  return 'running';
+}
 
 @Injectable()
 export class UsersService {
@@ -230,5 +253,170 @@ export class UsersService {
       },
     });
     return users.map((u) => this.toAdminUser(u));
+  }
+
+  async getMyStats(userId: string) {
+    const [totalSubmissions, verdictGroups, acceptedRows, attemptedRows, regs, contestSubRows] =
+      await Promise.all([
+        this.prisma.client.submission.count({ where: { userId } }),
+        this.prisma.client.submission.groupBy({
+          by: ['status'],
+          where: { userId, status: { in: TERMINAL_STATUSES } },
+          _count: { _all: true },
+        }),
+        this.prisma.client.submission.findMany({
+          where: { userId, status: SubmissionStatus.ACCEPTED },
+          select: { problemId: true },
+          distinct: ['problemId'],
+        }),
+        this.prisma.client.submission.findMany({
+          where: { userId, status: { in: TERMINAL_STATUSES } },
+          select: { problemId: true },
+          distinct: ['problemId'],
+        }),
+        this.prisma.client.contestRegistration.findMany({
+          where: { userId },
+          select: { contestId: true },
+        }),
+        this.prisma.client.submission.findMany({
+          where: { userId, contestId: { not: null } },
+          select: { contestId: true },
+          distinct: ['contestId'],
+        }),
+      ]);
+
+    const solvedCount = acceptedRows.length;
+    const attemptedCount = attemptedRows.length;
+    const passRatePercent =
+      attemptedCount === 0
+        ? 0
+        : Math.round((solvedCount / attemptedCount) * 1000) / 10;
+
+    const verdictBreakdown: Partial<Record<SubmissionStatus, number>> = {};
+    for (const g of verdictGroups) {
+      verdictBreakdown[g.status] = g._count._all;
+    }
+
+    const contestIdSet = new Set<string>();
+    for (const r of regs) contestIdSet.add(r.contestId);
+    for (const s of contestSubRows) {
+      if (s.contestId) contestIdSet.add(s.contestId);
+    }
+
+    const now = new Date();
+    const contests =
+      contestIdSet.size === 0
+        ? []
+        : await Promise.all(
+            (
+              await this.prisma.client.contest.findMany({
+                where: { id: { in: [...contestIdSet] } },
+                orderBy: { startAt: 'desc' },
+              })
+            ).map(async (c) => {
+              const [submissionCount, acceptedInContest] = await Promise.all([
+                this.prisma.client.submission.count({
+                  where: { userId, contestId: c.id },
+                }),
+                this.prisma.client.submission.findMany({
+                  where: {
+                    userId,
+                    contestId: c.id,
+                    status: SubmissionStatus.ACCEPTED,
+                  },
+                  select: { problemId: true },
+                  distinct: ['problemId'],
+                }),
+              ]);
+              return {
+                contestId: c.id,
+                number: c.number,
+                title: c.title,
+                startAt: c.startAt.toISOString(),
+                endAt: c.endAt.toISOString(),
+                status: contestListStatus(c.startAt, c.endAt, now),
+                submissionCount,
+                acceptedProblemCount: acceptedInContest.length,
+              };
+            }),
+          );
+
+    return {
+      summary: {
+        totalSubmissions,
+        solvedCount,
+        attemptedCount,
+        passRatePercent,
+      },
+      verdictBreakdown,
+      contests,
+    };
+  }
+
+  async listMySolvedProblems(userId: string, page: number, pageSize: number) {
+    const acSubs = await this.prisma.client.submission.findMany({
+      where: { userId, status: SubmissionStatus.ACCEPTED },
+      orderBy: { createdAt: 'asc' },
+      select: { problemId: true, createdAt: true, contestId: true },
+    });
+
+    const firstByProblem = new Map<
+      string,
+      { createdAt: Date; contestId: string | null }
+    >();
+    for (const s of acSubs) {
+      if (!firstByProblem.has(s.problemId)) {
+        firstByProblem.set(s.problemId, {
+          createdAt: s.createdAt,
+          contestId: s.contestId,
+        });
+      }
+    }
+
+    const sorted = [...firstByProblem.entries()].sort(
+      (a, b) => b[1].createdAt.getTime() - a[1].createdAt.getTime(),
+    );
+    const total = sorted.length;
+    const slice = sorted.slice((page - 1) * pageSize, page * pageSize);
+
+    if (slice.length === 0) {
+      return { items: [], total, page, pageSize };
+    }
+
+    const problemIds = slice.map(([id]) => id);
+    const problems = await this.prisma.client.problem.findMany({
+      where: { id: { in: problemIds } },
+      select: { id: true, number: true, title: true },
+    });
+    const problemMap = new Map(problems.map((p) => [p.id, p]));
+
+    const contestIds = [
+      ...new Set(
+        slice.map(([, m]) => m.contestId).filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    const contestRows =
+      contestIds.length > 0
+        ? await this.prisma.client.contest.findMany({
+            where: { id: { in: contestIds } },
+            select: { id: true, number: true },
+          })
+        : [];
+    const contestMap = new Map(contestRows.map((c) => [c.id, c.number]));
+
+    const items = slice.map(([problemId, meta]) => {
+      const p = problemMap.get(problemId)!;
+      return {
+        problemId,
+        number: p.number,
+        title: p.title,
+        firstAcceptedAt: meta.createdAt.toISOString(),
+        contestNumber: meta.contestId
+          ? (contestMap.get(meta.contestId) ?? null)
+          : null,
+      };
+    });
+
+    return { items, total, page, pageSize };
   }
 }

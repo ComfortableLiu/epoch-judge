@@ -4,6 +4,9 @@ export interface JwtPayload {
   sub: string;
   username: string;
   role: Role;
+  /** Unix seconds; set by JWT library when signing */
+  exp?: number;
+  iat?: number;
 }
 
 export interface AuthTokens {
