@@ -1,9 +1,9 @@
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { createTestModule } from '../../test/helpers/test-module';
+import { createTestModule } from '../test/helpers/test-module';
 import { AuthService } from './auth.service';
-import type { MockPrisma } from '../../test/helpers/mock-prisma';
+import type { MockPrisma } from '../test/helpers/mock-prisma';
 
 // Mock bcrypt
 jest.mock('bcryptjs', () => ({

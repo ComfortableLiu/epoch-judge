@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { createTestModule } from '../../test/helpers/test-module';
+import { createTestModule } from '../test/helpers/test-module';
 import { SubmissionsService } from './submissions.service';
-import type { MockPrisma } from '../../test/helpers/mock-prisma';
+import type { MockPrisma } from '../test/helpers/mock-prisma';
 import { JudgeTaskService } from '../judge/judge-task.service';
 import { JudgeModeService } from '../judge/judge-mode.service';
 import { ContestsService } from '../contests/contests.service';

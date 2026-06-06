@@ -6,6 +6,19 @@
 - 文档：运行 API 后访问 `/api/docs`
 - 语言头：`X-Locale: zh-CN | en-US`
 
+## CORS 跨域配置
+
+NestJS 应用内置 CORS 中间件，通过环境变量配置：
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `CORS_ORIGINS` | 开发: `http://localhost:8080`；生产: 无 | 逗号分隔的允许源 URL 列表 |
+
+- 开发环境（`NODE_ENV !== 'production`）未设置 `CORS_ORIGINS` 时默认允许 `http://localhost:8080`
+- 生产环境未设置时拒绝所有跨域请求（`origin: false`）
+- 始终启用 `credentials: true` 以支持 JWT Token 跨域传递
+- 允许的 headers：`Authorization`、`Content-Type`、`Accept`、`X-Locale`
+
 ## 评测模式
 
 - **比赛**：`contests.judge_mode` 优先级最高；从比赛进入提交（`?contestId=`）时模式锁定且不可改。

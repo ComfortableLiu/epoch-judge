@@ -1,8 +1,8 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { createTestModule } from '../../test/helpers/test-module';
+import { createTestModule } from '../test/helpers/test-module';
 import { ContestsService } from './contests.service';
-import type { MockPrisma } from '../../test/helpers/mock-prisma';
+import type { MockPrisma } from '../test/helpers/mock-prisma';
 import { ProblemAccessService } from '../problems/problem-access.service';
 
 jest.mock('bcryptjs', () => ({

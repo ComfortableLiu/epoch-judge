@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
-import { createTestModule } from '../../test/helpers/test-module';
+import { createTestModule } from '../test/helpers/test-module';
 import { ProblemsService } from './problems.service';
-import type { MockPrisma } from '../../test/helpers/mock-prisma';
+import type { MockPrisma } from '../test/helpers/mock-prisma';
 import { ProblemAccessService } from './problem-access.service';
 import { StorageService } from '../storage/storage.service';
 import { JudgeModeService } from '../judge/judge-mode.service';

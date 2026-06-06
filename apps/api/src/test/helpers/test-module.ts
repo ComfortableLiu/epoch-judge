@@ -3,7 +3,7 @@
  */
 
 import { Test, type TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { createMockPrisma, type MockPrisma } from './mock-prisma';
 
 export interface CreateTestModuleOptions {
