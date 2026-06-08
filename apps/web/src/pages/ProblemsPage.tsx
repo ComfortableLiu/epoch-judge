@@ -1,11 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Card, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useMemo, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useEffect, type ReactNode, useState, useCallback } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { formatEntityId } from '../lib/format-entity-id';
+import { ProblemListSkeleton } from '../components/skeleton';
+import { ProblemFilters, type ProblemFilterValues } from '../components/ProblemFilters';
 
 type PassStatus = 'PASSED' | 'FAILED' | 'NONE' | null;
 
@@ -14,6 +16,7 @@ interface ProblemRow {
   number: number;
   title: string;
   difficulty: number;
+  tags: string[];
   passStatus: PassStatus;
 }
 
@@ -33,12 +36,69 @@ function passStatusTag(
   return <Tag>{t('problems.passNone')}</Tag>;
 }
 
+const DIFFICULTY_MIN = 0;
+const DIFFICULTY_MAX = 5000;
+
+function parseFiltersFromParams(params: URLSearchParams): ProblemFilterValues {
+  const keyword = params.get('keyword') ?? '';
+  const tags = params.get('tags') ? params.get('tags')!.split(',').filter(Boolean) : [];
+  const difficultyMin = params.has('difficultyMin') ? Number(params.get('difficultyMin')) : DIFFICULTY_MIN;
+  const difficultyMax = params.has('difficultyMax') ? Number(params.get('difficultyMax')) : DIFFICULTY_MAX;
+  return { keyword, tags, difficultyRange: [difficultyMin, difficultyMax] };
+}
+
+function filtersToParams(filters: ProblemFilterValues): URLSearchParams {
+  const params = new URLSearchParams();
+  if (filters.keyword) params.set('keyword', filters.keyword);
+  if (filters.tags.length > 0) params.set('tags', filters.tags.join(','));
+  if (filters.difficultyRange[0] !== DIFFICULTY_MIN) params.set('difficultyMin', String(filters.difficultyRange[0]));
+  if (filters.difficultyRange[1] !== DIFFICULTY_MAX) params.set('difficultyMax', String(filters.difficultyRange[1]));
+  return params;
+}
+
 export function ProblemsPage() {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState<ProblemFilterValues>(() => parseFiltersFromParams(searchParams));
+
+  // Collect all unique tags from data for the tag selector
+  const [allTags, setAllTags] = useState<string[]>([]);
+
+  const queryParams = useMemo(() => {
+    const p = new URLSearchParams();
+    if (filters.keyword) p.set('keyword', filters.keyword);
+    if (filters.tags.length > 0) p.set('tags', filters.tags.join(','));
+    if (filters.difficultyRange[0] !== DIFFICULTY_MIN) p.set('difficultyMin', String(filters.difficultyRange[0]));
+    if (filters.difficultyRange[1] !== DIFFICULTY_MAX) p.set('difficultyMax', String(filters.difficultyRange[1]));
+    return p.toString();
+  }, [filters]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ['problems'],
-    queryFn: () => api<ProblemRow[]>('/problems'),
+    queryKey: ['problems', queryParams],
+    queryFn: () => api<ProblemRow[]>(`/problems?${queryParams}`),
+    placeholderData: keepPreviousData,
   });
+
+  // Update allTags when data changes
+  useEffect(() => {
+    if (data) {
+      const tags = new Set<string>();
+      for (const row of data) {
+        for (const tag of row.tags ?? []) {
+          tags.add(tag);
+        }
+      }
+      setAllTags((prev) => {
+        const merged = new Set([...prev, ...tags]);
+        return Array.from(merged).sort();
+      });
+    }
+  }, [data]);
+
+  const handleFiltersChange = useCallback((newFilters: ProblemFilterValues) => {
+    setFilters(newFilters);
+    setSearchParams(filtersToParams(newFilters), { replace: true });
+  }, [setSearchParams]);
 
   const columns: ColumnsType<ProblemRow> = useMemo(
     () => [
@@ -59,6 +119,18 @@ export function ProblemsPage() {
         ),
       },
       {
+        title: t('problems.colTags'),
+        key: 'tags',
+        width: 200,
+        render: (_, row) => (
+          <span>
+            {(row.tags ?? []).map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+          </span>
+        ),
+      },
+      {
         title: t('problems.colPass'),
         dataIndex: 'passStatus',
         key: 'passStatus',
@@ -76,10 +148,18 @@ export function ProblemsPage() {
     [t],
   );
 
+  if (isLoading && !data) {
+    return <ProblemListSkeleton />;
+  }
+
   return (
     <Card title={t('problems.title')}>
+      <ProblemFilters
+        values={filters}
+        onChange={handleFiltersChange}
+        availableTags={allTags}
+      />
       <Table<ProblemRow>
-        loading={isLoading}
         dataSource={data ?? []}
         rowKey="id"
         columns={columns}

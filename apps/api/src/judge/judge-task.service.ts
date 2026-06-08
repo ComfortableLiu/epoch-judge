@@ -9,6 +9,7 @@ import type { JudgeTaskPayload } from '@epoch-judge/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { InflightService } from './inflight.service';
 import { JudgeQueueService } from './judge-queue.service';
+import { ProblemTestcasesCacheService } from './problem-testcases-cache.service';
 
 type ProblemWithTestcases = Problem & {
   testcases: { id: string; inputKey: string; outputKey: string; score: number }[];
@@ -27,6 +28,7 @@ export class JudgeTaskService {
     private readonly prisma: PrismaService,
     private readonly judgeQueue: JudgeQueueService,
     private readonly inflight: InflightService,
+    private readonly testcasesCache: ProblemTestcasesCacheService,
   ) {}
 
   buildPayload(sub: {
@@ -91,14 +93,22 @@ export class JudgeTaskService {
     const sub = await this.prisma.client.submission.findUnique({
       where: { id: submissionId },
       include: {
-        problem: {
-          include: { testcases: { orderBy: { ordinal: 'asc' } } },
-        },
+        problem: true,
         testcaseResults: true,
       },
     });
     if (!sub) throw new NotFoundException(`Submission ${submissionId} not found`);
-    return sub;
+
+    // Use cached testcases
+    const testcases = await this.testcasesCache.getTestcases(sub.problemId);
+
+    return {
+      ...sub,
+      problem: {
+        ...sub.problem,
+        testcases,
+      },
+    };
   }
 
   async enqueuePrepared(

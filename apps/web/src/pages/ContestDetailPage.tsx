@@ -64,7 +64,7 @@ export function ContestDetailPage() {
         body: JSON.stringify({ password }),
       }),
     onSuccess: () => {
-      appMessage.success('密码验证成功');
+      appMessage.success(t('contests.passwordVerified'));
       setPwdOpen(false);
       setPassword('');
       void refetch();
@@ -92,10 +92,10 @@ export function ContestDetailPage() {
 
   const scoreColumns =
     contest?.judgeMode === 'OI'
-      ? [{ title: 'Score', dataIndex: 'score' as const }]
+      ? [{ title: t('contests.score'), dataIndex: 'score' as const }]
       : [
-          { title: 'Solved', dataIndex: 'solved' as const },
-          { title: 'Penalty', dataIndex: 'penalty' as const },
+          { title: t('contests.solved'), dataIndex: 'solved' as const },
+          { title: t('contests.penalty'), dataIndex: 'penalty' as const },
         ];
 
   return (
@@ -105,7 +105,7 @@ export function ContestDetailPage() {
           <Typography.Paragraph>{t('contests.notStartedBlocked')}</Typography.Paragraph>
           {contest?.startAt && (
             <Typography.Text type="secondary">
-              {t('contests.colStart')}：{new Date(contest.startAt).toLocaleString()}
+              {t('contests.colStart')}: {new Date(contest.startAt).toLocaleString()}
             </Typography.Text>
           )}
           {!loggedIn && (
@@ -130,17 +130,17 @@ export function ContestDetailPage() {
       )}
 
       <Modal
-        title="比赛密码"
+        title={t('contests.contestPassword')}
         open={pwdOpen}
         onCancel={() => setPwdOpen(false)}
         onOk={() => verifyPassword.mutate()}
         confirmLoading={verifyPassword.isPending}
-        okText="确认"
+        okText={t('common.confirm')}
       >
         <Input.Password
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="请输入比赛密码"
+          placeholder={t('contests.enterPasswordPlaceholder')}
           autoComplete="current-password"
         />
       </Modal>
@@ -150,7 +150,7 @@ export function ContestDetailPage() {
         title={
           contest
             ? formatContestTitle(contest.title, contest.requiresPassword)
-            : `比赛 #${number}`
+            : t('contests.contestNumber', { number })
         }
       >
         {contest?.number != null && (
@@ -169,7 +169,7 @@ export function ContestDetailPage() {
         )}
         {contest?.freezeAt && accessGranted && (
           <Typography.Text type="secondary">
-            Freeze: {new Date(contest.freezeAt).toLocaleString()}
+            {t('contests.freeze')}: {new Date(contest.freezeAt).toLocaleString()}
           </Typography.Text>
         )}
       </Card>
@@ -203,26 +203,26 @@ export function ContestDetailPage() {
             />
           </Card>
 
-          <Card title="官方榜单" style={{ marginTop: 16 }}>
+          <Card title={t('contests.officialRanking')} style={{ marginTop: 16 }}>
             <Table<ScoreboardRow>
               dataSource={officialRows}
               rowKey="userId"
               pagination={false}
               columns={[
                 { title: '#', dataIndex: 'rank', width: 56 },
-                { title: '选手', dataIndex: 'displayName' },
+                { title: t('contests.participant'), dataIndex: 'displayName' },
                 ...scoreColumns,
               ]}
             />
           </Card>
 
           {starRows.length > 0 && (
-            <Card title="打星队伍（不计入排名与成绩）" style={{ marginTop: 16 }}>
+            <Card title={t('contests.starTeams')} style={{ marginTop: 16 }}>
               <Table<ScoreboardRow>
                 dataSource={starRows}
                 rowKey="userId"
                 pagination={false}
-                columns={[{ title: '选手', dataIndex: 'displayName' }]}
+                columns={[{ title: t('contests.participant'), dataIndex: 'displayName' }]}
               />
             </Card>
           )}

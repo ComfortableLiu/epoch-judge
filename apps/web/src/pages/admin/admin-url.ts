@@ -1,6 +1,7 @@
 export const ADMIN_TABS = [
   'problems',
   'contests',
+  'announcements',
   'rejudge',
   'users',
   'judge',

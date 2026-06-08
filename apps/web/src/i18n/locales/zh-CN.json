@@ -1,4 +1,20 @@
 {
+  "common": {
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "search": "搜索",
+    "reset": "重置",
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "success": "操作成功",
+    "error": "操作失败",
+    "yes": "是",
+    "no": "否"
+  },
   "brand": "纪元 EpochJudge",
   "nav": {
     "home": "首页",
@@ -12,15 +28,105 @@
     "profile": "个人资料",
     "logout": "退出"
   },
+  "admin": {
+    "title": "管理后台",
+    "tabs": {
+      "problems": "题目",
+      "contests": "比赛",
+      "announcements": "公告",
+      "rejudge": "重判",
+      "users": "用户",
+      "judge": "判题",
+      "config": "配置"
+    },
+    "contests": {
+      "registrationsTitle": "报名与打星 — {{title}}",
+      "registrationsHint": "比赛榜单使用报名时的昵称快照，不随用户后续修改资料而变化。打星队伍名前带 * ，且不计入官方排名与成绩。",
+      "addParticipant": "添加参赛者（冻结当前昵称）",
+      "registrationAdded": "已添加报名记录",
+      "colUsername": "用户名",
+      "colDisplayName": "榜单展示名（快照）",
+      "colStarTeam": "打星队伍",
+      "colRegisteredAt": "报名时间",
+      "currentProfile": "当前资料：{{name}}"
+    },
+    "judgeNodes": {
+      "name": "节点",
+      "online": "在线",
+      "concurrency": "并发",
+      "heartbeat": "心跳"
+    },
+    "config": {
+      "key": "配置项",
+      "value": "值"
+    },
+    "announcements": {
+      "createSuccess": "公告已创建",
+      "updateSuccess": "公告已更新",
+      "deleteSuccess": "公告已删除",
+      "colTitle": "标题",
+      "colPinned": "置顶",
+      "colStartsAt": "开始时间",
+      "colEndsAt": "结束时间",
+      "colCreatedAt": "创建时间",
+      "colActions": "操作",
+      "pinned": "置顶",
+      "normal": "普通",
+      "edit": "编辑",
+      "delete": "删除",
+      "create": "新增公告",
+      "editTitle": "编辑公告",
+      "createTitle": "新增公告",
+      "formTitle": "标题",
+      "formContent": "内容",
+      "formPinned": "置顶",
+      "formStartsAt": "开始时间（可选）",
+      "formEndsAt": "结束时间（可选）",
+      "titleRequired": "请输入标题",
+      "contentRequired": "请输入内容",
+      "deleteConfirm": "确定删除此公告？"
+    },
+    "rejudge": {
+      "scopeSubmission": "按提交",
+      "scopeProblem": "按题目",
+      "scopeContest": "按比赛",
+      "colId": "ID",
+      "selectProblem": "选择题目",
+      "selectContest": "选择比赛",
+      "statusFilter": "按状态筛选（不选则显示全部终态）",
+      "hintSubmission": "可先按状态缩小列表，再勾选提交记录后预览或确认重判。",
+      "hintOther": "先选题目/比赛，可用状态进一步筛选，再在表格中勾选要重判的提交。",
+      "colProblem": "题目",
+      "colUser": "用户",
+      "colStatus": "状态",
+      "colLanguage": "语言",
+      "colScore": "分数",
+      "selectAll": "全选",
+      "clearAll": "清空",
+      "preview": "预览影响条数",
+      "confirm": "确认重判",
+      "previewResult": "可重判 {{eligible}} 条，跳过 {{skipped}} 条",
+      "previewMessage": "预览：{{eligible}} 条可重判，{{skipped}} 条将跳过",
+      "queued": "已入队 {{count}} 条",
+      "lastResult": "最近一批结果",
+      "queuedCount": "成功入队：{{count}}",
+      "skippedCount": "跳过/失败：{{count}}"
+    }
+  },
   "home": {
     "title": "开源 OJ 平台",
-    "subtitle": "面向 OI / ACM 刷题用户，支持 OI 与 ACM 评测模式、实时判题与比赛。"
+    "subtitle": "面向 OI / ACM 刷题用户，支持 OI 与 ACM 评测模式、实时判题与比赛。",
+    "collapseAnnouncements": "收起",
+    "showAllAnnouncements": "查看全部 {{count}} 条公告"
   },
   "auth": {
     "username": "用户名",
     "password": "密码",
     "email": "邮箱",
-    "passwordResetRequired": "密码已被管理员重置，请使用原用户名在注册页设置新密码"
+    "passwordResetRequired": "密码已被管理员重置，请使用原用户名在注册页设置新密码",
+    "loginSuccess": "登录成功",
+    "loginFailed": "登录失败",
+    "registerSuccess": "注册成功"
   },
   "profile": {
     "displayName": "昵称",
@@ -106,6 +212,17 @@
     "passwordBlocked": "该比赛需要密码才能查看题目与榜单。",
     "passwordLoginHint": "请先登录后再输入密码。",
     "enterPassword": "输入比赛密码",
+    "enterPasswordPlaceholder": "请输入比赛密码",
+    "passwordVerified": "密码验证成功",
+    "contestPassword": "比赛密码",
+    "contestNumber": "比赛 #{{number}}",
+    "officialRanking": "官方榜单",
+    "starTeams": "打星队伍（不计入排名与成绩）",
+    "participant": "选手",
+    "score": "分数",
+    "solved": "通过",
+    "penalty": "罚时",
+    "freeze": "封榜",
     "previewModeHint": "预览模式：比赛未开始，可查看题目但不可提交。"
   },
   "problems": {
@@ -113,12 +230,16 @@
     "submit": "提交代码",
     "colId": "ID",
     "colTitle": "题目",
+    "colTags": "标签",
     "colPass": "通过状态",
     "colDifficulty": "难度",
     "passPassed": "已通过",
     "passFailed": "未通过",
     "passNone": "未尝试",
-    "passUnknown": "—"
+    "passUnknown": "—",
+    "searchPlaceholder": "搜索题目标题或编号",
+    "filterTags": "按标签筛选",
+    "filterDifficulty": "难度区间"
   },
   "submissionStatus": {
     "PENDING": "等待中",
@@ -154,6 +275,19 @@
     "colStatus": "状态",
     "colLanguage": "语言",
     "colScore": "分数",
-    "colTime": "提交时间"
+    "colTime": "提交时间",
+    "testcaseResults": "测例结果",
+    "testcaseNumber": "编号",
+    "testcaseVerdict": "判定",
+    "testcaseTime": "运行时间",
+    "testcaseMemory": "内存占用",
+    "testcaseMessage": "错误信息",
+    "testcaseSample": "样例",
+    "paginationTotal": "第 {{start}}-{{end}} 条，共 {{total}} 条",
+    "oiScore": "{{percent}}分（{{passed}}/{{total}}）"
+  },
+  "notFound": {
+    "message": "页面不存在",
+    "backHome": "返回首页"
   }
 }

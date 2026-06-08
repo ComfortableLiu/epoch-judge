@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Card, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, getToken, isTokenUsable } from '../api/client';
@@ -10,6 +10,7 @@ import {
   hasPendingSubmissions,
   submissionStatusColor,
 } from '../lib/submission-status-ui';
+import { SubmissionListSkeleton } from '../components/skeleton';
 
 type SubmissionRow = {
   number: number;
@@ -21,17 +22,30 @@ type SubmissionRow = {
   user: { username: string; displayName: string | null };
 };
 
+type PaginatedResponse = {
+  data: SubmissionRow[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
 const POLL_MS = 2000;
 
 export function SubmissionsPage() {
   const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+
   const { data, isPending } = useQuery({
-    queryKey: ['submissions'],
-    queryFn: () => api<SubmissionRow[]>('/submissions'),
+    queryKey: ['submissions', page, limit],
+    queryFn: () => api<PaginatedResponse>(`/submissions?page=${page}&limit=${limit}`),
     enabled: isTokenUsable(getToken()),
     placeholderData: keepPreviousData,
     refetchInterval: (query) =>
-      hasPendingSubmissions(query.state.data) ? POLL_MS : false,
+      hasPendingSubmissions(query.state.data?.data) ? POLL_MS : false,
     refetchIntervalInBackground: true,
   });
 
@@ -100,13 +114,34 @@ export function SubmissionsPage() {
     [t],
   );
 
+  if (isPending && !data) {
+    return <SubmissionListSkeleton />;
+  }
+
   return (
-    <Card title={t('submissions.title')} loading={isPending && !data}>
+    <Card title={t('submissions.title')}>
       <Table<SubmissionRow>
         rowKey="number"
         columns={columns}
-        dataSource={data ?? []}
-        pagination={{ pageSize: 20, showSizeChanger: false }}
+        dataSource={data?.data ?? []}
+        pagination={{
+          current: data?.pagination.page ?? page,
+          pageSize: data?.pagination.limit ?? limit,
+          total: data?.pagination.total ?? 0,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+          onChange: (newPage, newLimit) => {
+            setPage(newPage);
+            setLimit(newLimit);
+          },
+          showTotal: (total, range) =>
+            t('submissions.paginationTotal', {
+              defaultValue: `${range[0]}-${range[1]} of ${total}`,
+              start: range[0],
+              end: range[1],
+              total,
+            }),
+        }}
         size="middle"
         scroll={{ x: 900 }}
       />

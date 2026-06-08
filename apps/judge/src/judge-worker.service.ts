@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Worker } from 'bullmq';
+import { LRUCache } from 'lru-cache';
 import { judgeOneTestcase } from '@epoch-judge/judge-sandbox';
 import {
   createRedisClient,
@@ -38,10 +39,16 @@ export class JudgeWorkerService implements OnModuleInit {
   private readonly logger = new Logger(JudgeWorkerService.name);
   private worker?: Worker<JudgeTaskPayload>;
   private publisher?: ReturnType<typeof createRedisClient>;
-  /** 同题测例元数据只从 DB 加载一次，减少重复 IO */
-  private readonly problemTestcasesCache = new Map<string, JudgeTestcasePayload[]>();
+  /** 同题测例元数据 LRU 缓存，防止内存无限增长 */
+  private readonly problemTestcasesCache: LRUCache<string, JudgeTestcasePayload[]>;
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) {
+    const maxSize = Number(this.config.get('JUDGE_CACHE_MAX_SIZE', 1000));
+    this.problemTestcasesCache = new LRUCache<string, JudgeTestcasePayload[]>({
+      max: maxSize,
+    });
+    this.logger.log(`LRU cache initialized with maxSize=${maxSize}`);
+  }
 
   onModuleInit() {
     const conn = getRedisConnectionOptions(undefined, { bullMq: true });

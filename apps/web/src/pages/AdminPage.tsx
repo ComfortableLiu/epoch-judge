@@ -2,7 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Form, Input, Table, Tabs } from 'antd';
 import { appMessage } from '../lib/app-message';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
+import { AdminAnnouncementPanel } from './admin/AdminAnnouncementPanel';
 import { AdminContestPanel } from './admin/AdminContestPanel';
 import { AdminProblemPanel } from './admin/AdminProblemPanel';
 import { AdminRejudgePanel } from './admin/AdminRejudgePanel';
@@ -10,6 +12,7 @@ import { AdminUserPanel } from './admin/AdminUserPanel';
 import { ADMIN_TABS, parseAdminTab, type AdminTab } from './admin/admin-url';
 
 export function AdminPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = parseAdminTab(searchParams.get('tab'), {
@@ -53,24 +56,25 @@ export function AdminPage() {
     mutationFn: (body: { key: string; value: string }) =>
       api('/admin/config', { method: 'PUT', body: JSON.stringify(body) }),
     onSuccess: () => {
-      appMessage.success('已保存');
+      appMessage.success(t('common.success'));
       void qc.invalidateQueries({ queryKey: ['admin-config'] });
     },
   });
 
   return (
-    <Card title="管理后台">
+    <Card title={t('admin.title')}>
       <Tabs
         activeKey={activeTab}
         onChange={(key) => setTab(parseAdminTab(key))}
         items={ADMIN_TABS.map((key) => {
           const labels: Record<AdminTab, string> = {
-            problems: '题目',
-            contests: '比赛',
-            rejudge: '重判',
-            users: '用户',
-            judge: '判题',
-            config: '配置',
+            problems: t('admin.tabs.problems'),
+            contests: t('admin.tabs.contests'),
+            announcements: t('admin.tabs.announcements'),
+            rejudge: t('admin.tabs.rejudge'),
+            users: t('admin.tabs.users'),
+            judge: t('admin.tabs.judge'),
+            config: t('admin.tabs.config'),
           };
           const children =
             key === 'users' ? (
@@ -79,6 +83,8 @@ export function AdminPage() {
               <AdminProblemPanel />
             ) : key === 'contests' ? (
               <AdminContestPanel />
+            ) : key === 'announcements' ? (
+              <AdminAnnouncementPanel />
             ) : key === 'rejudge' ? (
               <AdminRejudgePanel />
             ) : key === 'judge' ? (
@@ -87,14 +93,14 @@ export function AdminPage() {
                 dataSource={nodes.data ?? []}
                 rowKey="id"
                 columns={[
-                  { title: '节点', dataIndex: 'name' },
+                  { title: t('admin.judgeNodes.name'), dataIndex: 'name' },
                   {
-                    title: '在线',
+                    title: t('admin.judgeNodes.online'),
                     dataIndex: 'isOnline',
-                    render: (v: boolean) => (v ? '是' : '否'),
+                    render: (v: boolean) => v ? t('common.yes') : t('common.no'),
                   },
-                  { title: '并发', dataIndex: 'concurrency' },
-                  { title: '心跳', dataIndex: 'lastHeartbeat' },
+                  { title: t('admin.judgeNodes.concurrency'), dataIndex: 'concurrency' },
+                  { title: t('admin.judgeNodes.heartbeat'), dataIndex: 'lastHeartbeat' },
                 ]}
               />
             ) : (
@@ -108,14 +114,14 @@ export function AdminPage() {
                       ?.value ?? '10',
                 }}
               >
-                <Form.Item name="key" label="配置项">
+                <Form.Item name="key" label={t('admin.config.key')}>
                   <Input />
                 </Form.Item>
-                <Form.Item name="value" label="值">
+                <Form.Item name="value" label={t('admin.config.value')}>
                   <Input />
                 </Form.Item>
                 <Button type="primary" htmlType="submit" loading={saveConfig.isPending}>
-                  保存
+                  {t('common.save')}
                 </Button>
               </Form>
             );

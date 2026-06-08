@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { formatEntityId } from '../lib/format-entity-id';
 import { formatContestTitle } from '../lib/format-contest-title';
+import { ContestListSkeleton } from '../components/skeleton';
 
 type ContestStatus = 'upcoming' | 'running' | 'ended';
 
@@ -118,8 +119,12 @@ export function ContestsPage() {
     [t],
   );
 
+  if (isLoading && !data) {
+    return <ContestListSkeleton />;
+  }
+
   return (
-    <Card title={t('contests.title')} loading={isLoading}>
+    <Card title={t('contests.title')}>
       <Table<ContestRow>
         rowKey="id"
         dataSource={data ?? []}

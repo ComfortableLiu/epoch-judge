@@ -85,3 +85,12 @@ The default deployment configuration SHALL run exactly one judge worker on the s
 
 - **WHEN** an operator deploys using default environment from the deploy script
 - **THEN** the running stack includes one judge worker service replica co-located with the API stack
+
+### Requirement: Homepage announcement banner area
+
+The user-facing homepage SHALL include a dedicated area at the top for displaying the announcement banner component.
+
+#### Scenario: Banner area renders on homepage
+
+- **WHEN** a user visits the homepage
+- **THEN** the announcement banner area is rendered above the main content area

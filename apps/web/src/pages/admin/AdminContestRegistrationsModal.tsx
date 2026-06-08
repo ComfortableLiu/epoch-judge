@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Modal, Select, Switch, Table, Typography } from 'antd';
 import { appMessage } from '../../lib/app-message';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
 
 type RegistrationRow = {
@@ -34,6 +35,7 @@ export function AdminContestRegistrationsModal({
   open,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [addUserId, setAddUserId] = useState<string | null>(null);
 
@@ -71,7 +73,7 @@ export function AdminContestRegistrationsModal({
         body: JSON.stringify({ userId, isStarTeam: false }),
       }),
     onSuccess: () => {
-      appMessage.success('已添加报名记录');
+      appMessage.success(t('admin.contests.registrationAdded'));
       setAddUserId(null);
       void qc.invalidateQueries({ queryKey: ['admin-contest-registrations', contestId] });
     },
@@ -80,7 +82,7 @@ export function AdminContestRegistrationsModal({
 
   return (
     <Modal
-      title={`报名与打星 — ${contestTitle}`}
+      title={t('admin.contests.registrationsTitle', { title: contestTitle })}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -88,16 +90,14 @@ export function AdminContestRegistrationsModal({
       destroyOnClose
     >
       <Typography.Paragraph type="secondary">
-        比赛榜单使用报名时的昵称快照，不随用户后续修改资料而变化。打星队伍名前带
-        <Typography.Text code>*</Typography.Text>
-        ，且不计入官方排名与成绩。
+        {t('admin.contests.registrationsHint')}
       </Typography.Paragraph>
 
       <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
         <Select
           showSearch
           allowClear
-          placeholder="添加参赛者（冻结当前昵称）"
+          placeholder={t('admin.contests.addParticipant')}
           style={{ flex: 1, maxWidth: 400 }}
           value={addUserId}
           onChange={setAddUserId}
@@ -115,7 +115,7 @@ export function AdminContestRegistrationsModal({
           loading={addRegistration.isPending}
           onClick={() => addUserId && addRegistration.mutate(addUserId)}
         >
-          添加
+          {t('common.add')}
         </Button>
       </div>
 
@@ -126,9 +126,9 @@ export function AdminContestRegistrationsModal({
         pagination={{ pageSize: 15 }}
         size="small"
         columns={[
-          { title: '用户名', dataIndex: 'username', width: 120 },
+          { title: t('admin.contests.colUsername'), dataIndex: 'username', width: 120 },
           {
-            title: '榜单展示名（快照）',
+            title: t('admin.contests.colDisplayName'),
             dataIndex: 'displayName',
             render: (v, row) => (
               <>
@@ -136,14 +136,14 @@ export function AdminContestRegistrationsModal({
                 {row.currentDisplayName &&
                   row.currentDisplayName !== row.displayNameSnapshot && (
                     <Typography.Text type="secondary" style={{ marginLeft: 8 }}>
-                      当前资料：{row.currentDisplayName}
+                      {t('admin.contests.currentProfile', { name: row.currentDisplayName })}
                     </Typography.Text>
                   )}
               </>
             ),
           },
           {
-            title: '打星队伍',
+            title: t('admin.contests.colStarTeam'),
             dataIndex: 'isStarTeam',
             width: 100,
             render: (v: boolean, row) => (
@@ -157,7 +157,7 @@ export function AdminContestRegistrationsModal({
             ),
           },
           {
-            title: '报名时间',
+            title: t('admin.contests.colRegisteredAt'),
             dataIndex: 'createdAt',
             width: 168,
             render: (v: string) => new Date(v).toLocaleString(),

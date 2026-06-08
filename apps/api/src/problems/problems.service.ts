@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ProblemTestcasesCacheService } from '../judge/problem-testcases-cache.service';
 import { ProblemVisibility, Role, SubmissionStatus } from '@epoch-judge/db';
 import {
   isSubmissionTerminal,
@@ -40,25 +41,76 @@ export class ProblemsService {
     private readonly storage: StorageService,
     private readonly judgeMode: JudgeModeService,
     private readonly problemAccess: ProblemAccessService,
+    private readonly testcasesCache: ProblemTestcasesCacheService,
   ) {}
 
-  async list(publicOnly = true, user?: ProblemAccessUser) {
+  async list(
+    publicOnly = true,
+    user?: ProblemAccessUser,
+    filters?: {
+      keyword?: string;
+      tags?: string[];
+      difficultyMin?: number;
+      difficultyMax?: number;
+    },
+  ) {
     const isStaff = user && this.problemAccess.isStaff(user.role);
     const locked = await this.problemAccess.getLockedProblemIds();
     const lockedArr = [...locked];
 
+    // Build filter conditions
+    const filterConditions: any[] = [];
+
+    // Keyword search: match title or number
+    if (filters?.keyword) {
+      const keyword = filters.keyword;
+      const num = Number(keyword);
+      if (!Number.isNaN(num) && Number.isInteger(num)) {
+        filterConditions.push({
+          OR: [
+            { title: { contains: keyword } },
+            { number: num },
+          ],
+        });
+      } else {
+        filterConditions.push({ title: { contains: keyword } });
+      }
+    }
+
+    // Tags filter: match any of the specified tags (OR logic)
+    if (filters?.tags && filters.tags.length > 0) {
+      filterConditions.push({
+        OR: filters.tags.map((tag) => ({ tags: { array_contains: [tag] } })),
+      });
+    }
+
+    // Difficulty range filter
+    if (filters?.difficultyMin !== undefined) {
+      filterConditions.push({ difficulty: { gte: filters.difficultyMin } });
+    }
+    if (filters?.difficultyMax !== undefined) {
+      filterConditions.push({ difficulty: { lte: filters.difficultyMax } });
+    }
+
     const problems = await this.prisma.client.problem.findMany({
       where:
         isStaff && !publicOnly
-          ? undefined
+          ? filterConditions.length > 0
+            ? { AND: filterConditions }
+            : undefined
           : {
-              OR: [
-                ...(user ? [{ createdById: user.id }] : []),
+              AND: [
+                ...(filterConditions.length > 0 ? filterConditions : []),
                 {
-                  visibility: ProblemVisibility.PUBLIC,
-                  ...(lockedArr.length > 0
-                    ? { id: { notIn: lockedArr } }
-                    : {}),
+                  OR: [
+                    ...(user ? [{ createdById: user.id }] : []),
+                    {
+                      visibility: ProblemVisibility.PUBLIC,
+                      ...(lockedArr.length > 0
+                        ? { id: { notIn: lockedArr } }
+                        : {}),
+                    },
+                  ],
                 },
               ],
             },
@@ -398,6 +450,7 @@ export class ProblemsService {
       dto.score,
       dto.isSample ?? false,
     );
+    this.testcasesCache.invalidate(problemId);
     return {
       id: row.id,
       ordinal: row.ordinal,
@@ -456,6 +509,7 @@ export class ProblemsService {
         checksum,
       },
     });
+    this.testcasesCache.invalidate(problemId);
     return {
       id: updated.id,
       ordinal: updated.ordinal,
@@ -479,6 +533,7 @@ export class ProblemsService {
       /* ignore */
     }
     await this.prisma.client.problemTestcase.delete({ where: { id: testcaseId } });
+    this.testcasesCache.invalidate(problemId);
     return { ok: true };
   }
 
@@ -619,6 +674,7 @@ export class ProblemsService {
     }
 
     await this.syncAssets(problem.id, manifest.assets ?? []);
+    this.testcasesCache.invalidate(problem.id);
     return problem;
   }
 

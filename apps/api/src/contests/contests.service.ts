@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JudgeMode, ContestVisibility, Role } from '@epoch-judge/db';
+import { isSubmissionTerminal } from '@epoch-judge/shared';
 import * as bcrypt from 'bcryptjs';
 import { t } from '../common/messages';
 import { PrismaService } from '../prisma/prisma.service';
@@ -640,6 +641,18 @@ export class ContestsService {
     }
   }
 
+  /**
+   * Calculate contest scoreboard.
+   *
+   * ACM mode penalty formula (standard ACM-ICPC rules):
+   *   penalty = sum over solved problems of (first_ac_time_minutes + 20 * failed_attempts_before_ac)
+   *   - first_ac_time_minutes: minutes from contest start to first accepted submission
+   *   - failed_attempts_before_ac: count of non-AC submissions before the first AC on that problem
+   *   - Submissions after the first AC are ignored
+   *   - Problems without AC do not contribute to penalty
+   *
+   * OI mode: ranks by total score (best score per problem per user).
+   */
   async scoreboard(
     numberOrId: string,
     user: ProblemAccessUser | undefined,
@@ -671,34 +684,80 @@ export class ContestsService {
     const shouldFreeze =
       !forceFull && contest.freezeAt && now >= contest.freezeAt;
 
+    // Query ALL submissions (not just ACCEPTED) to calculate ACM penalty correctly
     const subs = await this.prisma.client.submission.findMany({
       where: {
         contestId,
-        status: 'ACCEPTED',
         ...(shouldFreeze ? { createdAt: { lte: contest.freezeAt! } } : {}),
       },
-      include: { user: { select: { username: true, displayName: true } } },
+      select: {
+        id: true,
+        userId: true,
+        problemId: true,
+        status: true,
+        score: true,
+        createdAt: true,
+        user: { select: { username: true, displayName: true } },
+      },
     });
 
     type Stats = { score?: number; solved?: number; penalty?: number };
     const statsByUser = new Map<string, Stats>();
 
     if (contest.judgeMode === JudgeMode.OI) {
+      // OI mode: keep best score per problem per user
       for (const s of subs) {
         const cur = statsByUser.get(s.userId) ?? { score: 0 };
         cur.score = Math.max(cur.score ?? 0, s.score ?? 0);
         statsByUser.set(s.userId, cur);
       }
     } else {
+      // ACM mode: calculate penalty with failed attempts before first AC
+      // Group submissions by (userId, problemId)
+      const subsByUserProblem = new Map<
+        string,
+        Array<{ status: string; createdAt: Date }>
+      >();
       for (const s of subs) {
-        const cur = statsByUser.get(s.userId) ?? { solved: 0, penalty: 0 };
-        cur.solved = (cur.solved ?? 0) + 1;
-        cur.penalty =
-          (cur.penalty ?? 0) +
-          Math.floor(
-            (s.createdAt.getTime() - contest.startAt.getTime()) / 60000,
+        const key = `${s.userId}:${s.problemId}`;
+        const arr = subsByUserProblem.get(key) ?? [];
+        arr.push({ status: s.status, createdAt: s.createdAt });
+        subsByUserProblem.set(key, arr);
+      }
+
+      // Process each (user, problem) group
+      for (const [key, userSubs] of subsByUserProblem) {
+        const userId = key.split(':')[0];
+        // Sort by submission time
+        userSubs.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+        // Find first AC and count failures before it
+        let firstAcTime: Date | null = null;
+        let failedBeforeAc = 0;
+
+        for (const sub of userSubs) {
+          if (sub.status === 'ACCEPTED') {
+            firstAcTime = sub.createdAt;
+            break;
+          }
+          // Only count terminal non-AC statuses as failed attempts.
+          // Non-terminal statuses (QUEUED, JUDGING, etc.) are not real failures.
+          if (isSubmissionTerminal(sub.status) && sub.status !== 'ACCEPTED') {
+            failedBeforeAc++;
+          }
+        }
+
+        // Only count solved problems (those with AC)
+        if (firstAcTime) {
+          const cur = statsByUser.get(userId) ?? { solved: 0, penalty: 0 };
+          cur.solved = (cur.solved ?? 0) + 1;
+          // Penalty = time from contest start to first AC (minutes) + 20 * failed attempts before AC
+          const acMinutes = Math.floor(
+            (firstAcTime.getTime() - contest.startAt.getTime()) / 60000,
           );
-        statsByUser.set(s.userId, cur);
+          cur.penalty = (cur.penalty ?? 0) + acMinutes + 20 * failedBeforeAc;
+          statsByUser.set(userId, cur);
+        }
       }
     }
 

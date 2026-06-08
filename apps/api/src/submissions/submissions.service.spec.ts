@@ -97,9 +97,11 @@ describe('SubmissionsService', () => {
       mockPrisma.client.submission.findMany.mockResolvedValue([
         { id: 's1', number: 1, status: 'ACCEPTED', language: 'JAVASCRIPT', createdAt: new Date() },
       ]);
+      mockPrisma.client.submission.count.mockResolvedValue(1);
 
       const result = await service.listForUser('u1');
-      expect(result).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
+      expect(result.pagination.total).toBe(1);
     });
   });
 

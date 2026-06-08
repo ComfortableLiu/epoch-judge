@@ -82,6 +82,7 @@ model User {
   contestRegistrations  ContestRegistration[]
   createdProblems       Problem[]             @relation("ProblemCreator")
   createdContests       Contest[]             @relation("ContestCreator")
+  createdAnnouncements  Announcement[]
 
   @@map("users")
 }
@@ -210,6 +211,22 @@ model Contest {
   submissions   Submission[]
 
   @@map("contests")
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  isPinned  Boolean  @default(false) @map("is_pinned")
+  startsAt  DateTime? @map("starts_at")
+  endsAt    DateTime? @map("ends_at")
+  createdById String?  @map("created_by_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@map("announcements")
 }
 
 model ContestProblem {

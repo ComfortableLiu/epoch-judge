@@ -11,11 +11,17 @@ export function maxRuntimeStats(results: TestcaseResultRow[]) {
   };
 }
 
-/** OI：按通过测例数百分制，如 15/20 → 75分（15/20） */
-export function formatOiScore(results: TestcaseResultRow[]): string | null {
+/** OI：按通过测例数百分制，如 15/20 → 75 points (15/20) */
+export function formatOiScore(
+  results: TestcaseResultRow[],
+  t?: (key: string, opts?: Record<string, unknown>) => string,
+): string | null {
   const total = results.length;
   if (!total) return null;
   const passed = results.filter((r) => r.verdict === 'ACCEPTED').length;
   const percent = Math.round((passed / total) * 100);
-  return `${percent}分（${passed}/${total}）`;
+  if (t) {
+    return t('submissions.oiScore', { percent, passed, total });
+  }
+  return `${percent} points (${passed}/${total})`;
 }

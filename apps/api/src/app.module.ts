@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { createThrottleConfig } from './common/throttle.config';
 import { AdminModule } from './admin/admin.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
 import { AuthModule } from './auth/auth.module';
 import { ContestsModule } from './contests/contests.module';
 import { HealthModule } from './health/health.module';
@@ -39,6 +40,7 @@ import { UsersModule } from './users/users.module';
     JudgeModule,
     AdminModule,
     TemplatesModule,
+    AnnouncementsModule,
   ],
   providers: [
     {

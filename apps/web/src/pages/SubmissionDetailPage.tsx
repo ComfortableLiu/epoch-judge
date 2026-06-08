@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Descriptions, Result, Spin, Tag, Typography } from 'antd';
+import { Card, Descriptions, Result, Spin, Table, Tag, Typography } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
@@ -32,9 +32,101 @@ type SubmissionDetail = {
     verdict: string;
     timeMs: number | null;
     memoryKb: number | null;
-    testcase: { isSample: boolean };
+    message: string | null;
+    testcase: { ordinal: number; isSample: boolean };
   }[];
 };
+
+function verdictLabel(verdict: string): string {
+  const map: Record<string, string> = {
+    ACCEPTED: 'AC',
+    WRONG_ANSWER: 'WA',
+    TIME_LIMIT_EXCEEDED: 'TLE',
+    MEMORY_LIMIT_EXCEEDED: 'MLE',
+    RUNTIME_ERROR: 'RE',
+    COMPILE_ERROR: 'CE',
+    SKIPPED: 'SKIP',
+    PENDING: '...',
+  };
+  return map[verdict] ?? verdict;
+}
+
+function TestcaseResultTable({
+  results,
+  judgeMode,
+  t,
+}: {
+  results: SubmissionDetail['testcaseResults'];
+  judgeMode: string;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}) {
+  const displayResults = useMemo(() => {
+    if (judgeMode === 'ACM') {
+      const firstFail = results.find((r) => r.verdict !== 'ACCEPTED');
+      return firstFail ? [firstFail] : [];
+    }
+    return results;
+  }, [results, judgeMode]);
+
+  if (displayResults.length === 0) return null;
+
+  return (
+    <div style={{ marginTop: 24 }}>
+      <Typography.Title level={5} style={{ marginTop: 0 }}>
+        {t('submissions.testcaseResults')}
+      </Typography.Title>
+      <Table
+        dataSource={displayResults}
+        rowKey={(_, i) => String(i)}
+        pagination={false}
+        size="small"
+        columns={[
+          {
+            title: t('submissions.testcaseNumber'),
+            key: 'ordinal',
+            width: 120,
+            render: (_: unknown, record: (typeof displayResults)[number]) => (
+              <>
+                #{record.testcase.ordinal}
+                {record.testcase.isSample && (
+                  <Tag color="blue" style={{ marginLeft: 4 }}>
+                    {t('submissions.testcaseSample')}
+                  </Tag>
+                )}
+              </>
+            ),
+          },
+          {
+            title: t('submissions.testcaseVerdict'),
+            dataIndex: 'verdict',
+            width: 100,
+            render: (verdict: string) => (
+              <Tag color={submissionStatusColor(verdict)}>{verdictLabel(verdict)}</Tag>
+            ),
+          },
+          {
+            title: t('submissions.testcaseTime'),
+            dataIndex: 'timeMs',
+            width: 120,
+            render: (ms: number | null) => (ms != null ? `${ms} ms` : '—'),
+          },
+          {
+            title: t('submissions.testcaseMemory'),
+            dataIndex: 'memoryKb',
+            width: 120,
+            render: (kb: number | null) => formatMemoryKiB(kb ?? 0),
+          },
+          {
+            title: t('submissions.testcaseMessage'),
+            dataIndex: 'message',
+            ellipsis: true,
+            render: (msg: string | null) => msg || '—',
+          },
+        ]}
+      />
+    </div>
+  );
+}
 
 function RuntimeStats({
   maxTimeMs,
@@ -93,7 +185,7 @@ export function SubmissionDetailPage() {
   }, [data]);
 
   const oiScoreLabel = useMemo(
-    () => (data?.judgeMode === 'OI' ? formatOiScore(data.testcaseResults) : null),
+    () => (data?.judgeMode === 'OI' ? formatOiScore(data.testcaseResults, t) : null),
     [data],
   );
 
@@ -146,26 +238,33 @@ export function SubmissionDetailPage() {
       )}
 
       {!judging && data && resultStatus && (
-        <Result
-          status={resultStatus}
-          title={statusLabel}
-          subTitle={
-            <div style={{ textAlign: 'left', maxWidth: 400, margin: '0 auto' }}>
-              <Tag>{data.language}</Tag>
-              <Tag color={submissionStatusColor(data.status)}>{data.judgeMode}</Tag>
-              {data.judgeMode === 'OI' && oiScoreLabel && (
-                <Typography.Title level={4} style={{ marginTop: 16, marginBottom: 0 }}>
-                  {oiScoreLabel}
-                </Typography.Title>
-              )}
-              <RuntimeStats
-                maxTimeMs={runtime.maxTimeMs}
-                maxMemoryKb={runtime.maxMemoryKb}
-                t={t}
-              />
-            </div>
-          }
-        />
+        <>
+          <Result
+            status={resultStatus}
+            title={statusLabel}
+            subTitle={
+              <div style={{ textAlign: 'left', maxWidth: 400, margin: '0 auto' }}>
+                <Tag>{data.language}</Tag>
+                <Tag color={submissionStatusColor(data.status)}>{data.judgeMode}</Tag>
+                {data.judgeMode === 'OI' && oiScoreLabel && (
+                  <Typography.Title level={4} style={{ marginTop: 16, marginBottom: 0 }}>
+                    {oiScoreLabel}
+                  </Typography.Title>
+                )}
+                <RuntimeStats
+                  maxTimeMs={runtime.maxTimeMs}
+                  maxMemoryKb={runtime.maxMemoryKb}
+                  t={t}
+                />
+              </div>
+            }
+          />
+          <TestcaseResultTable
+            results={data.testcaseResults}
+            judgeMode={data.judgeMode}
+            t={t}
+          />
+        </>
       )}
 
       {data?.isOwn && data.sourceCode && (

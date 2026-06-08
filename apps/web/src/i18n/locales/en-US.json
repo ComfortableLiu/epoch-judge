@@ -1,4 +1,20 @@
 {
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "reset": "Reset",
+    "loading": "Loading...",
+    "noData": "No data",
+    "success": "Success",
+    "error": "Error",
+    "yes": "Yes",
+    "no": "No"
+  },
   "brand": "EpochJudge",
   "nav": {
     "home": "Home",
@@ -12,15 +28,105 @@
     "profile": "Profile",
     "logout": "Logout"
   },
+  "admin": {
+    "title": "Admin Panel",
+    "tabs": {
+      "problems": "Problems",
+      "contests": "Contests",
+      "announcements": "Announcements",
+      "rejudge": "Rejudge",
+      "users": "Users",
+      "judge": "Judge",
+      "config": "Config"
+    },
+    "contests": {
+      "registrationsTitle": "Registrations & Star Teams — {{title}}",
+      "registrationsHint": "The scoreboard uses the display name snapshot from registration time. Star teams are prefixed with * and excluded from official ranking.",
+      "addParticipant": "Add participant (freeze current display name)",
+      "registrationAdded": "Registration added",
+      "colUsername": "Username",
+      "colDisplayName": "Display Name (Snapshot)",
+      "colStarTeam": "Star Team",
+      "colRegisteredAt": "Registered At",
+      "currentProfile": "Current: {{name}}"
+    },
+    "judgeNodes": {
+      "name": "Node",
+      "online": "Online",
+      "concurrency": "Concurrency",
+      "heartbeat": "Heartbeat"
+    },
+    "config": {
+      "key": "Key",
+      "value": "Value"
+    },
+    "announcements": {
+      "createSuccess": "Announcement created",
+      "updateSuccess": "Announcement updated",
+      "deleteSuccess": "Announcement deleted",
+      "colTitle": "Title",
+      "colPinned": "Pinned",
+      "colStartsAt": "Start Time",
+      "colEndsAt": "End Time",
+      "colCreatedAt": "Created At",
+      "colActions": "Actions",
+      "pinned": "Pinned",
+      "normal": "Normal",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "New Announcement",
+      "editTitle": "Edit Announcement",
+      "createTitle": "New Announcement",
+      "formTitle": "Title",
+      "formContent": "Content",
+      "formPinned": "Pinned",
+      "formStartsAt": "Start Time (optional)",
+      "formEndsAt": "End Time (optional)",
+      "titleRequired": "Please enter a title",
+      "contentRequired": "Please enter content",
+      "deleteConfirm": "Delete this announcement?"
+    },
+    "rejudge": {
+      "scopeSubmission": "By Submission",
+      "scopeProblem": "By Problem",
+      "scopeContest": "By Contest",
+      "colId": "ID",
+      "selectProblem": "Select problems",
+      "selectContest": "Select contests",
+      "statusFilter": "Filter by status (empty = all terminal)",
+      "hintSubmission": "Filter by status first, then select submissions to preview or confirm rejudge.",
+      "hintOther": "Select problem/contest first, optionally filter by status, then select submissions in the table.",
+      "colProblem": "Problem",
+      "colUser": "User",
+      "colStatus": "Status",
+      "colLanguage": "Language",
+      "colScore": "Score",
+      "selectAll": "Select All",
+      "clearAll": "Clear",
+      "preview": "Preview Impact",
+      "confirm": "Confirm Rejudge",
+      "previewResult": "{{eligible}} eligible, {{skipped}} skipped",
+      "previewMessage": "Preview: {{eligible}} eligible, {{skipped}} will be skipped",
+      "queued": "Queued {{count}} submissions",
+      "lastResult": "Last Batch Result",
+      "queuedCount": "Queued: {{count}}",
+      "skippedCount": "Skipped/Failed: {{count}}"
+    }
+  },
   "home": {
     "title": "Open-source Online Judge",
-    "subtitle": "For OI/ACM practice with OI/ACM modes, live judging, and contests."
+    "subtitle": "For OI/ACM practice with OI/ACM modes, live judging, and contests.",
+    "collapseAnnouncements": "Collapse",
+    "showAllAnnouncements": "Show all {{count}} announcements"
   },
   "auth": {
     "username": "Username",
     "password": "Password",
     "email": "Email",
-    "passwordResetRequired": "Password was reset by an admin. Register again with your username to set a new password"
+    "passwordResetRequired": "Password was reset by an admin. Register again with your username to set a new password",
+    "loginSuccess": "Login successful",
+    "loginFailed": "Login failed",
+    "registerSuccess": "Registration successful"
   },
   "profile": {
     "displayName": "Display name",
@@ -106,6 +212,17 @@
     "passwordBlocked": "A contest password is required to view problems and the scoreboard.",
     "passwordLoginHint": "Sign in before entering the contest password.",
     "enterPassword": "Enter contest password",
+    "enterPasswordPlaceholder": "Enter contest password",
+    "passwordVerified": "Password verified successfully",
+    "contestPassword": "Contest Password",
+    "contestNumber": "Contest #{{number}}",
+    "officialRanking": "Official Ranking",
+    "starTeams": "Star Teams (not ranked)",
+    "participant": "Participant",
+    "score": "Score",
+    "solved": "Solved",
+    "penalty": "Penalty",
+    "freeze": "Freeze",
     "previewModeHint": "Preview mode: the contest has not started. You may view problems but cannot submit."
   },
   "problems": {
@@ -113,12 +230,16 @@
     "submit": "Submit",
     "colId": "ID",
     "colTitle": "Problem",
+    "colTags": "Tags",
     "colPass": "Status",
     "colDifficulty": "Level",
     "passPassed": "Accepted",
     "passFailed": "Failed",
     "passNone": "Not tried",
-    "passUnknown": "—"
+    "passUnknown": "—",
+    "searchPlaceholder": "Search by title or ID",
+    "filterTags": "Filter by tags",
+    "filterDifficulty": "Difficulty range"
   },
   "submissionStatus": {
     "PENDING": "Pending",
@@ -154,6 +275,19 @@
     "colStatus": "Status",
     "colLanguage": "Language",
     "colScore": "Score",
-    "colTime": "Submitted at"
+    "colTime": "Submitted at",
+    "testcaseResults": "Testcase Results",
+    "testcaseNumber": "#",
+    "testcaseVerdict": "Verdict",
+    "testcaseTime": "Time",
+    "testcaseMemory": "Memory",
+    "testcaseMessage": "Message",
+    "testcaseSample": "Sample",
+    "paginationTotal": "{{start}}-{{end}} of {{total}}",
+    "oiScore": "{{percent}} points ({{passed}}/{{total}})"
+  },
+  "notFound": {
+    "message": "Page not found",
+    "backHome": "Back to Home"
   }
 }

@@ -26,11 +26,20 @@ import { SubmissionsService } from './submissions.service';
 @ApiTags('submissions')
 @Controller('submissions')
 export class SubmissionsController {
+  private judgeEventsSubscribed = false;
+
   constructor(
     private readonly submissions: SubmissionsService,
     private readonly redis: RedisService,
     private readonly sseConns: SseConnectionService,
   ) {}
+
+  private ensureJudgeEventsSubscribed() {
+    if (!this.judgeEventsSubscribed) {
+      this.judgeEventsSubscribed = true;
+      void this.redis.subscriber.subscribe(RedisKeys.judgeEvents());
+    }
+  }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -50,8 +59,12 @@ export class SubmissionsController {
   list(
     @Req() req: { user: { id: string } },
     @Query('problemId') problemId?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.submissions.listForUser(req.user.id, problemId);
+    const p = Math.max(1, Number.parseInt(page ?? '1', 10) || 1);
+    const l = Math.min(100, Math.max(1, Number.parseInt(limit ?? '20', 10) || 20));
+    return this.submissions.listForUser(req.user.id, problemId, p, l);
   }
 
   @ApiBearerAuth()
@@ -84,11 +97,10 @@ export class SubmissionsController {
               /* ignore */
             }
           };
-          void this.redis.subscriber.subscribe(RedisKeys.judgeEvents());
+          this.ensureJudgeEventsSubscribed();
           this.redis.subscriber.on('message', handler);
           return () => {
             this.redis.subscriber.off('message', handler);
-            void this.redis.subscriber.unsubscribe(RedisKeys.judgeEvents());
             void this.sseConns.unregisterConnection(userId, connectionId);
           };
         });

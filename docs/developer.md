@@ -160,6 +160,65 @@ testdata/
 
 多实例部署时需设置 `THROTTLE_STORAGE=redis` 以共享限流计数，否则各实例独立计数。
 
+## 前端国际化（i18n）
+
+前端使用 `react-i18next` 实现国际化，支持 `zh-CN`（简体中文）和 `en-US`（英文）。
+
+### 翻译文件位置
+
+```
+apps/web/src/i18n/
+├── index.ts              # i18n 配置
+└── locales/
+    ├── zh-CN.json        # 中文翻译
+    └── en-US.json        # 英文翻译
+```
+
+### 翻译键命名规范
+
+采用 **`模块.组件.功能.文本类型`** 的层级命名方式：
+
+```
+common.confirm              # 通用：确认
+common.cancel               # 通用：取消
+admin.tabs.problems         # 管理后台 > 标签 > 题目
+admin.rejudge.scopeSubmission  # 管理后台 > 重判 > 按提交筛选
+contests.officialRanking    # 比赛 > 官方榜单
+auth.loginSuccess           # 认证 > 登录成功
+```
+
+### 常用模块前缀
+
+| 前缀 | 说明 |
+|------|------|
+| `common.*` | 通用词汇（确认、取消、保存、删除等） |
+| `nav.*` | 导航菜单 |
+| `auth.*` | 认证相关（登录、注册） |
+| `admin.*` | 管理后台 |
+| `contests.*` | 比赛相关 |
+| `problems.*` | 题目相关 |
+| `submissions.*` | 提交相关 |
+| `settings.*` | 设置页面 |
+
+### 使用方式
+
+```tsx
+import { useTranslation } from 'react-i18next';
+
+function MyComponent() {
+  const { t } = useTranslation();
+  return <Button>{t('common.save')}</Button>;
+}
+```
+
+### 添加新翻译
+
+1. 在 `zh-CN.json` 中添加中文翻译
+2. 在 `en-US.json` 中添加对应英文翻译
+3. 确保两个文件的 key 完全一致
+
+**禁止**在组件中硬编码中文或英文文本，所有用户可见文本必须使用 `t()` 函数。
+
 ## 账号密码
 
 - 个人改密：`PATCH /users/me/password`（`currentPassword`、`newPassword` ≥8 位）

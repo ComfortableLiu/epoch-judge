@@ -15,6 +15,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { ContestsPage } from './pages/ContestsPage';
 import { ContestDetailPage } from './pages/ContestDetailPage';
 import { AdminPage } from './pages/AdminPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { AuthGuard } from './components/AuthGuard';
 
 const queryClient = new QueryClient();
@@ -81,7 +82,7 @@ export function App() {
                   </AuthGuard>
                 }
               />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

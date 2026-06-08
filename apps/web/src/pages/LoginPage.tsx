@@ -27,7 +27,7 @@ export function LoginPage() {
               body: JSON.stringify(v),
             });
             setToken(res.accessToken);
-            appMessage.success('登录成功');
+            appMessage.success(t('auth.loginSuccess'));
             const target =
               redirectTo?.startsWith('/') && !redirectTo.startsWith('//')
                 ? redirectTo

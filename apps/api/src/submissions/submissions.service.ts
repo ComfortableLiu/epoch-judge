@@ -121,22 +121,45 @@ export class SubmissionsService {
     return sub;
   }
 
-  async listForUser(userId: string, problemId?: string) {
-    return this.prisma.client.submission.findMany({
-      where: { userId, problemId },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-      select: {
-        id: true,
-        number: true,
-        status: true,
-        language: true,
-        score: true,
-        createdAt: true,
-        problem: { select: { number: true, title: true } },
-        user: { select: { username: true, displayName: true } },
+  async listForUser(
+    userId: string,
+    problemId?: string,
+    page = 1,
+    limit = 20,
+  ) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.client.submission.findMany({
+        where: { userId, problemId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          number: true,
+          status: true,
+          language: true,
+          score: true,
+          createdAt: true,
+          problem: { select: { number: true, title: true } },
+          user: { select: { username: true, displayName: true } },
+        },
+      }),
+      this.prisma.client.submission.count({
+        where: { userId, problemId },
+      }),
+    ]);
+
+    return {
+      data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   async getDetailByNumber(numberParam: string, userId?: string) {
@@ -183,8 +206,9 @@ export class SubmissionsService {
         score: r.score,
         timeMs: r.timeMs,
         memoryKb: r.memoryKb,
+        message: r.message,
         testcaseId: r.testcaseId,
-        testcase: { isSample: r.testcase.isSample },
+        testcase: { ordinal: r.testcase.ordinal, isSample: r.testcase.isSample },
       })),
     };
   }

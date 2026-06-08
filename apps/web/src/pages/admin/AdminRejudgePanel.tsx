@@ -109,7 +109,10 @@ export function AdminRejudgePanel() {
       }),
     onSuccess: (data) => {
       appMessage.info(
-        `可重判 ${data.eligibleCount} 条，跳过 ${data.skipped.length} 条`,
+        t('admin.rejudge.previewResult', {
+          eligible: data.eligibleCount,
+          skipped: data.skipped.length,
+        }),
       );
     },
     onError: (e: Error) => appMessage.error(e.message),
@@ -123,7 +126,7 @@ export function AdminRejudgePanel() {
       }),
     onSuccess: (data) => {
       setLastResult(data);
-      appMessage.success(`已入队 ${data.queued} 条`);
+      appMessage.success(t('admin.rejudge.queued', { count: data.queued }));
       void candidates.refetch();
     },
     onError: (e: Error) => appMessage.error(e.message),
@@ -151,16 +154,16 @@ export function AdminRejudgePanel() {
         }}
         optionType="button"
         options={[
-          { label: '按提交', value: 'submission' },
-          { label: '按题目', value: 'problem' },
-          { label: '按比赛', value: 'contest' },
+          { label: t('admin.rejudge.scopeSubmission'), value: 'submission' },
+          { label: t('admin.rejudge.scopeProblem'), value: 'problem' },
+          { label: t('admin.rejudge.scopeContest'), value: 'contest' },
         ]}
       />
 
       {scope === 'problem' && (
         <Select
           mode="multiple"
-          placeholder="选择题目"
+          placeholder={t('admin.rejudge.selectProblem')}
           style={{ width: '100%', maxWidth: 560 }}
           loading={problems.isLoading}
           options={(problems.data ?? []).map((p) => ({
@@ -178,7 +181,7 @@ export function AdminRejudgePanel() {
       {scope === 'contest' && (
         <Select
           mode="multiple"
-          placeholder="选择比赛"
+          placeholder={t('admin.rejudge.selectContest')}
           style={{ width: '100%', maxWidth: 560 }}
           loading={contests.isLoading}
           options={(contests.data ?? []).map((c) => ({
@@ -196,7 +199,7 @@ export function AdminRejudgePanel() {
       <Select
         mode="multiple"
         allowClear
-        placeholder="按状态筛选（不选则显示全部终态）"
+        placeholder={t('admin.rejudge.statusFilter')}
         style={{ width: '100%', maxWidth: 560 }}
         value={statusFilter}
         onChange={(v) => {
@@ -212,8 +215,8 @@ export function AdminRejudgePanel() {
 
       <Typography.Text type="secondary">
         {scope === 'submission'
-          ? '可先按状态缩小列表，再勾选提交记录后预览或确认重判。'
-          : '先选题目/比赛，可用状态进一步筛选，再在表格中勾选要重判的提交。'}
+          ? t('admin.rejudge.hintSubmission')
+          : t('admin.rejudge.hintOther')}
       </Typography.Text>
 
       <Table<CandidateRow>
@@ -227,7 +230,7 @@ export function AdminRejudgePanel() {
         pagination={{ pageSize: 20 }}
         columns={[
           {
-            title: 'ID',
+            title: t('admin.rejudge.colId'),
             dataIndex: 'number',
             width: 120,
             render: (num: number) => (
@@ -235,18 +238,18 @@ export function AdminRejudgePanel() {
             ),
           },
           {
-            title: '题目',
+            title: t('admin.rejudge.colProblem'),
             render: (_, row) => (
               <Link to={`/problems/${row.problem.number}`}>{row.problem.title}</Link>
             ),
           },
           {
-            title: '用户',
+            title: t('admin.rejudge.colUser'),
             render: (_, row) =>
               row.user.displayName ?? row.user.username,
           },
           {
-            title: '状态',
+            title: t('admin.rejudge.colStatus'),
             dataIndex: 'status',
             render: (status: string) => (
               <Tag color={submissionStatusColor(status)}>
@@ -254,8 +257,8 @@ export function AdminRejudgePanel() {
               </Tag>
             ),
           },
-          { title: '语言', dataIndex: 'language', width: 100 },
-          { title: '分数', dataIndex: 'score', width: 72 },
+          { title: t('admin.rejudge.colLanguage'), dataIndex: 'language', width: 100 },
+          { title: t('admin.rejudge.colScore'), dataIndex: 'score', width: 72 },
         ]}
       />
 
@@ -267,15 +270,15 @@ export function AdminRejudgePanel() {
           }}
           disabled={!tableData.length}
         >
-          全选
+          {t('admin.rejudge.selectAll')}
         </Button>
-        <Button onClick={() => setSelectedRowKeys([])}>清空</Button>
+        <Button onClick={() => setSelectedRowKeys([])}>{t('admin.rejudge.clearAll')}</Button>
         <Button
           loading={preview.isPending}
           disabled={!canPreview}
           onClick={() => preview.mutate()}
         >
-          预览影响条数
+          {t('admin.rejudge.preview')}
         </Button>
         <Button
           type="primary"
@@ -284,7 +287,7 @@ export function AdminRejudgePanel() {
           disabled={!canPreview}
           onClick={() => execute.mutate()}
         >
-          确认重判
+          {t('admin.rejudge.confirm')}
         </Button>
       </Space>
 
@@ -292,14 +295,17 @@ export function AdminRejudgePanel() {
         <Alert
           type="info"
           showIcon
-          message={`预览：${preview.data.eligibleCount} 条可重判，${preview.data.skipped.length} 条将跳过`}
+          message={t('admin.rejudge.previewMessage', {
+            eligible: preview.data.eligibleCount,
+            skipped: preview.data.skipped.length,
+          })}
         />
       )}
 
       {lastResult && (
-        <Card size="small" title="最近一批结果">
-          <p>成功入队：{lastResult.queued}</p>
-          <p>跳过/失败：{lastResult.skipped.length}</p>
+        <Card size="small" title={t('admin.rejudge.lastResult')}>
+          <p>{t('admin.rejudge.queuedCount', { count: lastResult.queued })}</p>
+          <p>{t('admin.rejudge.skippedCount', { count: lastResult.skipped.length })}</p>
           {lastResult.skipped.length > 0 && (
             <ul style={{ margin: 0, paddingLeft: 20 }}>
               {lastResult.skipped.slice(0, 20).map((s) => (

@@ -39,6 +39,10 @@ export class ProblemsController {
   @UseGuards(OptionalJwtAuthGuard)
   list(
     @Query('all') all?: string,
+    @Query('keyword') keyword?: string,
+    @Query('tags') tags?: string,
+    @Query('difficultyMin') difficultyMin?: string,
+    @Query('difficultyMax') difficultyMax?: string,
     @Req() req?: { user?: { id: string; role: Role } },
   ) {
     const isStaff =
@@ -46,6 +50,12 @@ export class ProblemsController {
     return this.problems.list(
       !(all === '1' && isStaff),
       req?.user ? { id: req.user.id, role: req.user.role } : undefined,
+      {
+        keyword: keyword?.trim() || undefined,
+        tags: tags?.trim() ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
+        difficultyMin: difficultyMin && !Number.isNaN(Number(difficultyMin)) ? Number(difficultyMin) : undefined,
+        difficultyMax: difficultyMax && !Number.isNaN(Number(difficultyMax)) ? Number(difficultyMax) : undefined,
+      },
     );
   }
 
