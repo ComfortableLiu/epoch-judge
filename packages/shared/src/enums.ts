@@ -20,6 +20,9 @@ export enum Language {
   CPP = 'CPP',
   PYTHON = 'PYTHON',
   JAVA = 'JAVA',
+  GO = 'GO',
+  RUST = 'RUST',
+  KOTLIN = 'KOTLIN',
 }
 
 export enum SubmissionStatus {

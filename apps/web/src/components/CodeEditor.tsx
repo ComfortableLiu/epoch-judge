@@ -7,6 +7,9 @@ const LANG_MAP: Record<string, string> = {
   JAVA: 'java',
   C: 'c',
   CPP: 'cpp',
+  GO: 'go',
+  RUST: 'rust',
+  KOTLIN: 'kotlin',
 };
 
 export function CodeEditor({

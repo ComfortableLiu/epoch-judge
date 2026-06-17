@@ -19,6 +19,9 @@ async function writeSource(workDir: string, language: Language, source: string) 
     [Language.JAVA]: 'Main.java',
     [Language.C]: 'main.c',
     [Language.CPP]: 'main.cpp',
+    [Language.GO]: 'main.go',
+    [Language.RUST]: 'main.rs',
+    [Language.KOTLIN]: 'Main.kt',
   };
   const name = files[language];
   await fs.writeFile(path.join(workDir, name), source, 'utf-8');
@@ -84,6 +87,57 @@ async function compileIfNeeded(
         message: stderr.slice(0, 2000),
       };
     }
+  } else if (language === Language.GO) {
+    const { stderr, timeMs } = await execCommand(
+      'go',
+      ['build', '-o', 'main', 'main.go'],
+      { cwd: workDir, timeoutMs, maxBufferBytes: maxBuf, env: { GOPATH: '/tmp/gopath', GOCACHE: '/tmp/gocache' } },
+    );
+    if (stderr.includes('error') || stderr.includes('错误')) {
+      return {
+        verdict: 'COMPILE_ERROR',
+        stdout: '',
+        stderr,
+        exitCode: 1,
+        timeMs,
+        memoryKb: 0,
+        message: stderr.slice(0, 2000),
+      };
+    }
+  } else if (language === Language.RUST) {
+    const { stderr, timeMs } = await execCommand(
+      'rustc',
+      ['-O', 'main.rs', '-o', 'main'],
+      { cwd: workDir, timeoutMs, maxBufferBytes: maxBuf },
+    );
+    if (stderr.includes('error') || stderr.includes('错误')) {
+      return {
+        verdict: 'COMPILE_ERROR',
+        stdout: '',
+        stderr,
+        exitCode: 1,
+        timeMs,
+        memoryKb: 0,
+        message: stderr.slice(0, 2000),
+      };
+    }
+  } else if (language === Language.KOTLIN) {
+    const { stderr, timeMs } = await execCommand(
+      'kotlinc',
+      ['Main.kt', '-include-runtime', '-d', 'Main.jar'],
+      { cwd: workDir, timeoutMs, maxBufferBytes: maxBuf },
+    );
+    if (stderr.includes('error') || stderr.includes('错误')) {
+      return {
+        verdict: 'COMPILE_ERROR',
+        stdout: '',
+        stderr,
+        exitCode: 1,
+        timeMs,
+        memoryKb: 0,
+        message: stderr.slice(0, 2000),
+      };
+    }
   }
   return null;
 }
@@ -98,7 +152,11 @@ function runCommand(language: Language): { bin: string; args: string[] } {
       return { bin: 'java', args: ['-Xmx256m', 'Main'] };
     case Language.C:
     case Language.CPP:
+    case Language.GO:
+    case Language.RUST:
       return { bin: './main', args: [] };
+    case Language.KOTLIN:
+      return { bin: 'java', args: ['-Xmx256m', '-jar', 'Main.jar'] };
     default:
       return { bin: 'false', args: [] };
   }

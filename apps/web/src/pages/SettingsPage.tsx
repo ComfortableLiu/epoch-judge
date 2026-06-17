@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { useThemeMode } from '../hooks/useThemeMode';
 
-const LANGS = ['JAVASCRIPT', 'PYTHON', 'JAVA', 'C', 'CPP'] as const;
+const LANGS = ['JAVASCRIPT', 'PYTHON', 'JAVA', 'C', 'CPP', 'GO', 'RUST', 'KOTLIN'] as const;
 
 type Profile = {
   preferredLanguage: string | null;

@@ -29,6 +29,9 @@ enum Language {
   CPP
   PYTHON
   JAVA
+  GO
+  RUST
+  KOTLIN
 }
 
 enum SubmissionStatus {

@@ -19,9 +19,26 @@ RUN yarn workspace @epoch-judge/redis build
 RUN yarn workspace @epoch-judge/judge build
 
 FROM node:20-bookworm-slim
+
+# Install Go
+RUN wget -qO- https://go.dev/dl/go1.22.4.linux-amd64.tar.gz | tar -C /usr/local -xz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+# Install Rust (minimal, for compilation only)
+RUN wget -qO- https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal \
+    && rm -rf /root/.rustup/toolchains/*/share/doc
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install system compilers
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ openjdk-17-jdk-headless python3 \
+    gcc g++ openjdk-17-jdk-headless python3 unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Kotlin
+RUN wget -qO /tmp/kotlin.zip "https://github.com/JetBrains/kotlin/releases/download/v1.9.24/kotlin-compiler-1.9.24.zip" \
+    && unzip -q /tmp/kotlin.zip -d /usr/local \
+    && rm /tmp/kotlin.zip
+ENV PATH="/usr/local/kotlinc/bin:${PATH}"
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/apps/judge/dist ./dist

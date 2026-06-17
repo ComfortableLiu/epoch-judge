@@ -8,7 +8,7 @@ import { api } from '../api/client';
 import { CodeEditor } from '../components/CodeEditor';
 import { useBreadcrumbLabel } from '../contexts/BreadcrumbContext';
 
-const LANGS = ['JAVASCRIPT', 'PYTHON', 'JAVA', 'C', 'CPP'] as const;
+const LANGS = ['JAVASCRIPT', 'PYTHON', 'JAVA', 'C', 'CPP', 'GO', 'RUST', 'KOTLIN'] as const;
 const TEMPLATES: Record<string, string> = {
   JAVASCRIPT:
     'import fs from "node:fs";\nconst [a, b] = fs.readFileSync(0, "utf8").trim().split(/\\s+/).map(Number);\nconsole.log(a + b);\n',
@@ -23,6 +23,9 @@ public class Main {
 `,
   C: '#include <stdio.h>\nint main() { int a,b; if(scanf("%d %d",&a,&b)==2) printf("%d\\n", a+b); return 0; }\n',
   CPP: '#include <iostream>\nusing namespace std;\nint main() { int a,b; cin>>a>>b; cout<<a+b<<endl; return 0; }\n',
+  GO: 'package main\n\nimport "fmt"\n\nfunc main() {\n\tvar a, b int\n\tfmt.Scan(&a, &b)\n\tfmt.Println(a + b)\n}\n',
+  RUST: 'use std::io::Read;\n\nfn main() {\n\tlet mut input = String::new();\n\tstd::io::stdin().read_to_string(&mut input).unwrap();\n\tlet mut iter = input.split_whitespace();\n\tlet a: i64 = iter.next().unwrap().parse().unwrap();\n\tlet b: i64 = iter.next().unwrap().parse().unwrap();\n\tprintln!("{}", a + b);\n}\n',
+  KOTLIN: 'fun main() {\n\tval (a, b) = readLine()!!.split(" ").map { it.toInt() }\n\tprintln(a + b)\n}\n',
 };
 
 type SubmitContext = {
