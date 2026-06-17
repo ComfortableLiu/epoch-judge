@@ -28,6 +28,9 @@
     "lint": "yarn workspaces foreach -Apt run lint",
     "test": "yarn workspace @epoch-judge/storage test && yarn workspace @epoch-judge/api test",
     "smoke": "bash scripts/smoke-test.sh",
-    "migrate:contest-passwords": "tsx scripts/migrate-contest-passwords.ts"
+    "migrate:contest-passwords": "tsx scripts/migrate-contest-passwords.ts",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   }
 }
