@@ -9,7 +9,15 @@ import {
   Sse,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import * as crypto from 'crypto';
 import { from, mergeMap, Observable } from 'rxjs';
@@ -45,6 +53,15 @@ export class SubmissionsController {
   @UseGuards(JwtAuthGuard)
   @Throttle(SUBMISSION_THROTTLE)
   @Post()
+  @ApiOperation({
+    summary: 'Submit a solution',
+    description: 'Submit source code for judging. Returns the submission number for tracking via SSE.',
+  })
+  @ApiBody({ type: CreateSubmissionDto })
+  @ApiResponse({ status: 201, description: 'Submission accepted for judging' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
+  @ApiResponse({ status: 429, description: 'Too many submissions' })
   create(
     @Req() req: { user: { id: string; role: Role } },
     @Body() dto: CreateSubmissionDto,
@@ -56,6 +73,11 @@ export class SubmissionsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiOperation({ summary: 'List my submissions' })
+  @ApiQuery({ name: 'problemId', required: false, description: 'Filter by problem ID' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (default: 20, max: 100)' })
+  @ApiResponse({ status: 200, description: 'Paginated list of submissions' })
   list(
     @Req() req: { user: { id: string } },
     @Query('problemId') problemId?: string,
@@ -71,6 +93,14 @@ export class SubmissionsController {
   @UseGuards(JwtAuthGuard)
   @SkipThrottle()
   @Sse(':number/stream')
+  @ApiOperation({
+    summary: 'Stream submission judging progress (SSE)',
+    description: 'Opens a Server-Sent Events stream that emits real-time updates as testcases are judged. The stream closes when judging completes.',
+  })
+  @ApiParam({ name: 'number', description: 'Submission number' })
+  @ApiResponse({ status: 200, description: 'SSE stream of judging events' })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
+  @ApiResponse({ status: 404, description: 'Submission not found' })
   stream(
     @Req() req: { user: { id: string } },
     @Param('number') numberParam: string,
@@ -111,6 +141,11 @@ export class SubmissionsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':number')
+  @ApiOperation({ summary: 'Get submission detail' })
+  @ApiParam({ name: 'number', description: 'Submission number' })
+  @ApiResponse({ status: 200, description: 'Submission detail with testcase results' })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
+  @ApiResponse({ status: 404, description: 'Submission not found' })
   detail(
     @Req() req: { user: { id: string } },
     @Param('number') number: string,

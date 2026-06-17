@@ -1,0 +1,2751 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "MetricsController_getMetrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Prometheus metrics endpoint",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "409": {
+            "description": "Username or email already exists"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "summary": "Register a new user account",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "description": "Returns access and refresh JWT tokens on success.",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful, returns JWT tokens"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "summary": "Login with username/email and password",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "description": "Submit the refresh token in the Authorization header to obtain a new access token.",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully"
+          },
+          "401": {
+            "description": "Invalid or expired refresh token"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Refresh access token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "operationId": "UsersController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/me/password": {
+      "patch": {
+        "operationId": "UsersController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/me/stats": {
+      "get": {
+        "operationId": "UsersController_myStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/me/stats/solved-problems": {
+      "get": {
+        "operationId": "UsersController_mySolvedProblems",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "UsersController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "patch": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}/reset-password": {
+      "post": {
+        "operationId": "UsersController_resetPassword",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/import": {
+      "post": {
+        "operationId": "UsersController_importCsv",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/problems": {
+      "get": {
+        "description": "Returns a paginated list of problems. Staff users can pass all=1 to include hidden problems.",
+        "operationId": "ProblemsController_list",
+        "parameters": [
+          {
+            "name": "all",
+            "required": false,
+            "in": "query",
+            "description": "Set to 1 to include hidden problems (staff only)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated tag filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "difficultyMin",
+            "required": false,
+            "in": "query",
+            "description": "Minimum difficulty",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "difficultyMax",
+            "required": false,
+            "in": "query",
+            "description": "Maximum difficulty",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of problems"
+          }
+        },
+        "summary": "List problems",
+        "tags": [
+          "problems"
+        ]
+      },
+      "post": {
+        "operationId": "ProblemsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProblemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Problem created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new problem",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/import": {
+      "post": {
+        "description": "Upload a ZIP file containing problem definitions and testcases to bulk-import problems.",
+        "operationId": "ProblemsController_importZip",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Problems imported successfully"
+          },
+          "400": {
+            "description": "Invalid ZIP format"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Import problems from ZIP",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{id}/export": {
+      "get": {
+        "operationId": "ProblemsController_exportZip",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "testdata",
+            "required": false,
+            "in": "query",
+            "description": "Set to \"false\" or \"0\" to exclude testdata",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ZIP file download"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Problem not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export problem as ZIP",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{id}/testcases": {
+      "get": {
+        "operationId": "ProblemsController_listTestcases",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of testcases"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List testcases for a problem",
+        "tags": [
+          "problems"
+        ]
+      },
+      "post": {
+        "operationId": "ProblemsController_createTestcase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestcaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Testcase created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a testcase",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{id}/testcases/{testcaseId}": {
+      "get": {
+        "operationId": "ProblemsController_getTestcase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "testcaseId",
+            "required": true,
+            "in": "path",
+            "description": "Testcase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Testcase detail including input/output"
+          },
+          "404": {
+            "description": "Testcase not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get testcase detail",
+        "tags": [
+          "problems"
+        ]
+      },
+      "patch": {
+        "operationId": "ProblemsController_updateTestcase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "testcaseId",
+            "required": true,
+            "in": "path",
+            "description": "Testcase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTestcaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Testcase updated"
+          },
+          "404": {
+            "description": "Testcase not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a testcase",
+        "tags": [
+          "problems"
+        ]
+      },
+      "delete": {
+        "operationId": "ProblemsController_deleteTestcase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "testcaseId",
+            "required": true,
+            "in": "path",
+            "description": "Testcase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Testcase deleted"
+          },
+          "404": {
+            "description": "Testcase not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a testcase",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{id}": {
+      "patch": {
+        "operationId": "ProblemsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Problem ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProblemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Problem updated"
+          },
+          "404": {
+            "description": "Problem not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a problem",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{number}/submit-context": {
+      "get": {
+        "description": "Returns problem metadata needed by the submission form, optionally scoped to a contest.",
+        "operationId": "ProblemsController_submitContext",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Problem number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contestId",
+            "required": false,
+            "in": "query",
+            "description": "Contest ID for contest-scoped access",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission context"
+          },
+          "404": {
+            "description": "Problem not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get submission context for a problem",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{number}/assets/{path}": {
+      "get": {
+        "operationId": "ProblemsController_getAsset",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Problem number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contestId",
+            "required": false,
+            "in": "query",
+            "description": "Contest ID for contest-scoped access",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset file content"
+          },
+          "404": {
+            "description": "Asset not found"
+          }
+        },
+        "summary": "Get problem asset file (image, etc.)",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/problems/{number}": {
+      "get": {
+        "description": "Returns full problem detail including statement, tags, and metadata. Contest-scoped if contestId is provided.",
+        "operationId": "ProblemsController_detail",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Problem number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contestId",
+            "required": false,
+            "in": "query",
+            "description": "Contest ID for contest-scoped access",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Problem detail"
+          },
+          "404": {
+            "description": "Problem not found"
+          }
+        },
+        "summary": "Get problem detail",
+        "tags": [
+          "problems"
+        ]
+      }
+    },
+    "/submissions": {
+      "post": {
+        "description": "Submit source code for judging. Returns the submission number for tracking via SSE.",
+        "operationId": "SubmissionsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubmissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Submission accepted for judging"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "429": {
+            "description": "Too many submissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit a solution",
+        "tags": [
+          "submissions"
+        ]
+      },
+      "get": {
+        "operationId": "SubmissionsController_list",
+        "parameters": [
+          {
+            "name": "problemId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by problem ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page (default: 20, max: 100)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of submissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my submissions",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{number}/stream": {
+      "get": {
+        "description": "Opens a Server-Sent Events stream that emits real-time updates as testcases are judged. The stream closes when judging completes.",
+        "operationId": "SubmissionsController_stream",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Submission number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE stream of judging events"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stream submission judging progress (SSE)",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{number}": {
+      "get": {
+        "operationId": "SubmissionsController_detail",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Submission number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission detail with testcase results"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get submission detail",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/contests": {
+      "get": {
+        "operationId": "ContestsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of contests"
+          }
+        },
+        "summary": "List all public contests",
+        "tags": [
+          "contests"
+        ]
+      }
+    },
+    "/contests/{number}": {
+      "get": {
+        "operationId": "ContestsController_detail",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Contest number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contest detail"
+          },
+          "404": {
+            "description": "Contest not found"
+          }
+        },
+        "summary": "Get contest detail",
+        "tags": [
+          "contests"
+        ]
+      }
+    },
+    "/contests/{number}/scoreboard": {
+      "get": {
+        "operationId": "ContestsController_scoreboard",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Contest number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public scoreboard"
+          },
+          "404": {
+            "description": "Contest not found"
+          }
+        },
+        "summary": "Get contest scoreboard",
+        "tags": [
+          "contests"
+        ]
+      }
+    },
+    "/contests/{number}/scoreboard/full": {
+      "get": {
+        "operationId": "ContestsController_scoreboardFull",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Contest number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full scoreboard with all participants"
+          },
+          "403": {
+            "description": "Admin access required"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get full contest scoreboard (admin only)",
+        "tags": [
+          "contests"
+        ]
+      }
+    },
+    "/contests/{number}/register": {
+      "post": {
+        "operationId": "ContestsController_register",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Contest number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Registered successfully"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Contest not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register for a contest",
+        "tags": [
+          "contests"
+        ]
+      }
+    },
+    "/contests/{number}/verify-password": {
+      "post": {
+        "operationId": "ContestsController_verifyPassword",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "description": "Contest number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyContestPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password verified"
+          },
+          "401": {
+            "description": "Invalid password"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify contest password for private contests",
+        "tags": [
+          "contests"
+        ]
+      }
+    },
+    "/admin/judge-nodes": {
+      "get": {
+        "operationId": "AdminController_judgeNodes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of judge nodes with heartbeat info"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all judge nodes and their status",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/config": {
+      "get": {
+        "operationId": "AdminController_getConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of config key-value pairs"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all system configuration entries",
+        "tags": [
+          "admin"
+        ]
+      },
+      "put": {
+        "operationId": "AdminController_setConfig",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Config entry created or updated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set a system configuration entry",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/rejudge/candidates": {
+      "post": {
+        "operationId": "RejudgeController_listCandidates",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejudgeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of submissions matching the rejudge criteria"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List rejudge candidates",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/rejudge/preview": {
+      "post": {
+        "operationId": "RejudgeController_preview",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejudgeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preview of affected submissions"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Preview rejudge impact",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/rejudge": {
+      "post": {
+        "description": "Rejudge all submissions matching the criteria. This is an async operation.",
+        "operationId": "RejudgeController_execute",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejudgeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rejudge initiated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Execute rejudge",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/contests": {
+      "get": {
+        "operationId": "AdminContestsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of all contests including hidden"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all contests (admin)",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminContestsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contest created"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new contest",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/contests/{id}": {
+      "get": {
+        "operationId": "AdminContestsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Contest ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contest detail"
+          },
+          "404": {
+            "description": "Contest not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get contest detail by ID (admin)",
+        "tags": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminContestsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Contest ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest updated"
+          },
+          "404": {
+            "description": "Contest not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a contest",
+        "tags": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminContestsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Contest ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contest deleted"
+          },
+          "404": {
+            "description": "Contest not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a contest",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/contests/{id}/registrations": {
+      "get": {
+        "operationId": "AdminContestsController_listRegistrations",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Contest ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of registrations"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List contest registrations",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminContestsController_addRegistration",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Contest ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpsertContestRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration created or updated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add or update a contest registration",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/contests/{id}/registrations/{userId}": {
+      "patch": {
+        "operationId": "AdminContestsController_updateRegistration",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Contest ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateContestRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration updated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a contest registration",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/templates/user-import.csv": {
+      "get": {
+        "operationId": "TemplatesController_userImport",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/templates/problem-import.zip": {
+      "get": {
+        "operationId": "TemplatesController_problemImport",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/admin/announcements": {
+      "get": {
+        "operationId": "AnnouncementsAdminController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin/announcements"
+        ]
+      },
+      "post": {
+        "operationId": "AnnouncementsAdminController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin/announcements"
+        ]
+      }
+    },
+    "/admin/announcements/{id}": {
+      "patch": {
+        "operationId": "AnnouncementsAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin/announcements"
+        ]
+      },
+      "delete": {
+        "operationId": "AnnouncementsAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin/announcements"
+        ]
+      }
+    },
+    "/announcements/active": {
+      "get": {
+        "operationId": "AnnouncementsController_getActive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "announcements"
+        ]
+      }
+    },
+    "/discussions/problems/{number}": {
+      "post": {
+        "operationId": "DiscussionsController_create",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDiscussionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a discussion post",
+        "tags": [
+          "discussions"
+        ]
+      },
+      "get": {
+        "operationId": "DiscussionsController_listByProblem",
+        "parameters": [
+          {
+            "name": "number",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "latest",
+              "type": "string",
+              "enum": [
+                "latest",
+                "popular"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List discussions for a problem",
+        "tags": [
+          "discussions"
+        ]
+      }
+    },
+    "/discussions/{id}": {
+      "get": {
+        "operationId": "DiscussionsController_getDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get discussion detail",
+        "tags": [
+          "discussions"
+        ]
+      },
+      "delete": {
+        "operationId": "DiscussionsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a discussion (admin only)",
+        "tags": [
+          "discussions"
+        ]
+      }
+    },
+    "/discussions/{id}/replies": {
+      "post": {
+        "operationId": "DiscussionsController_createReply",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a reply",
+        "tags": [
+          "discussions"
+        ]
+      },
+      "get": {
+        "operationId": "DiscussionsController_listReplies",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List replies for a discussion",
+        "tags": [
+          "discussions"
+        ]
+      }
+    },
+    "/discussions/{id}/vote": {
+      "post": {
+        "operationId": "DiscussionsController_vote",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Vote on a discussion or reply",
+        "tags": [
+          "discussions"
+        ]
+      }
+    },
+    "/discussions/{id}/pin": {
+      "patch": {
+        "operationId": "DiscussionsController_pin",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Toggle pin on a discussion (admin only)",
+        "tags": [
+          "discussions"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "EpochJudge API",
+    "description": "纪元 — 开源 Online Judge 平台 API",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "认证 — 注册、登录、令牌刷新"
+    },
+    {
+      "name": "problems",
+      "description": "题目 — 题目 CRUD、测试数据管理、导入导出"
+    },
+    {
+      "name": "submissions",
+      "description": "提交 — 代码提交、判题状态流式推送"
+    },
+    {
+      "name": "contests",
+      "description": "比赛 — 比赛列表、详情、报名、计分板"
+    },
+    {
+      "name": "users",
+      "description": "用户 — 个人资料、统计、管理操作"
+    },
+    {
+      "name": "discussions",
+      "description": "讨论 — 题目讨论与回复"
+    },
+    {
+      "name": "admin",
+      "description": "管理 — 系统配置、比赛管理、重判"
+    },
+    {
+      "name": "admin/announcements",
+      "description": "公告管理 — 公告 CRUD"
+    },
+    {
+      "name": "announcements",
+      "description": "公告 — 公开公告"
+    },
+    {
+      "name": "health",
+      "description": "健康检查 — 服务状态"
+    },
+    {
+      "name": "metrics",
+      "description": "监控 — Prometheus 指标端点"
+    },
+    {
+      "name": "templates",
+      "description": "模板 — 导入模板下载"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "email": {
+            "type": "string"
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "enum": [
+              "JAVASCRIPT",
+              "C",
+              "CPP",
+              "PYTHON",
+              "JAVA"
+            ]
+          },
+          "preferredJudgeMode": {
+            "type": "string",
+            "enum": [
+              "OI",
+              "ACM"
+            ]
+          }
+        }
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "AdminCreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ADMIN",
+              "PROBLEM_EDITOR"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "password",
+          "role"
+        ]
+      },
+      "AdminUpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ADMIN",
+              "PROBLEM_EDITOR"
+            ]
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateTestcaseDto": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "isSample": {
+            "type": "boolean"
+          },
+          "ordinal": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "input",
+          "output",
+          "score"
+        ]
+      },
+      "UpdateTestcaseDto": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "isSample": {
+            "type": "boolean"
+          },
+          "ordinal": {
+            "type": "number"
+          }
+        }
+      },
+      "CreateProblemDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "number"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "PRIVATE"
+            ]
+          },
+          "timeLimitMs": {
+            "type": "number"
+          },
+          "memoryLimitKb": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "UpdateProblemDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "number"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "timeLimitMs": {
+            "type": "number"
+          },
+          "memoryLimitKb": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateSubmissionDto": {
+        "type": "object",
+        "properties": {
+          "problemId": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "JAVASCRIPT",
+              "C",
+              "CPP",
+              "PYTHON",
+              "JAVA"
+            ]
+          },
+          "judgeMode": {
+            "type": "string",
+            "enum": [
+              "OI",
+              "ACM"
+            ]
+          },
+          "sourceCode": {
+            "type": "string"
+          },
+          "contestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "problemId",
+          "language",
+          "sourceCode"
+        ]
+      },
+      "VerifyContestPasswordDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "RejudgeRequestDto": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "problem",
+              "submission",
+              "contest"
+            ]
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "submissionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "scope",
+          "ids"
+        ]
+      },
+      "CreateContestDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "PRIVATE"
+            ]
+          },
+          "judgeMode": {
+            "type": "string",
+            "enum": [
+              "OI",
+              "ACM"
+            ]
+          },
+          "startAt": {
+            "type": "string"
+          },
+          "endAt": {
+            "type": "string"
+          },
+          "freezeAt": {
+            "type": "object"
+          },
+          "accessPassword": {
+            "type": "object",
+            "description": "明文比赛密码，空表示无密码"
+          },
+          "problemIds": {
+            "description": "题目 ID 列表，顺序即题号 A/B/C…",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "visibility",
+          "judgeMode",
+          "startAt",
+          "endAt"
+        ]
+      },
+      "UpdateContestDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "PRIVATE"
+            ]
+          },
+          "judgeMode": {
+            "type": "string",
+            "enum": [
+              "OI",
+              "ACM"
+            ]
+          },
+          "startAt": {
+            "type": "string"
+          },
+          "endAt": {
+            "type": "string"
+          },
+          "freezeAt": {
+            "type": "object",
+            "nullable": true
+          },
+          "accessPassword": {
+            "type": "object",
+            "nullable": true
+          },
+          "problemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AdminUpsertContestRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "isStarTeam": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "AdminUpdateContestRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "isStarTeam": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateDiscussionDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "QUESTION",
+              "SOLUTION"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "content"
+        ]
+      },
+      "CreateReplyDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "VoteDto": {
+        "type": "object",
+        "properties": {
+          "discussionId": {
+            "type": "string"
+          },
+          "replyId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

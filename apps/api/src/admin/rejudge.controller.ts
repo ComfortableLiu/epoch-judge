@@ -1,5 +1,11 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@epoch-judge/db';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Roles } from '../common/roles.decorator';
@@ -16,6 +22,9 @@ export class RejudgeController {
   constructor(private readonly rejudge: RejudgeService) {}
 
   @Post('candidates')
+  @ApiOperation({ summary: 'List rejudge candidates' })
+  @ApiBody({ type: RejudgeRequestDto })
+  @ApiResponse({ status: 200, description: 'List of submissions matching the rejudge criteria' })
   listCandidates(@Body() body: RejudgeRequestDto) {
     return this.rejudge.listCandidates(
       body.scope,
@@ -26,6 +35,9 @@ export class RejudgeController {
   }
 
   @Post('preview')
+  @ApiOperation({ summary: 'Preview rejudge impact' })
+  @ApiBody({ type: RejudgeRequestDto })
+  @ApiResponse({ status: 200, description: 'Preview of affected submissions' })
   preview(@Body() body: RejudgeRequestDto) {
     return this.rejudge.preview(
       body.scope,
@@ -36,6 +48,9 @@ export class RejudgeController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Execute rejudge', description: 'Rejudge all submissions matching the criteria. This is an async operation.' })
+  @ApiBody({ type: RejudgeRequestDto })
+  @ApiResponse({ status: 200, description: 'Rejudge initiated' })
   execute(@Body() body: RejudgeRequestDto) {
     return this.rejudge.execute(
       body.scope,
