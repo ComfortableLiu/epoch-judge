@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { MarkdownContent } from '../components/MarkdownContent';
 import { DiscussionTab } from '../components/discussions/DiscussionTab';
+import { RecommendationSection } from '../components/recommendations/RecommendationSection';
 import { useBreadcrumbLabel } from '../contexts/BreadcrumbContext';
 import { formatEntityId } from '../lib/format-entity-id';
 import { formatMemoryKiB } from '../lib/format-memory';
@@ -39,49 +40,52 @@ export function ProblemDetailPage() {
     : '';
 
   return (
-    <Card
-      loading={isLoading}
-      title={
-        data ? (
-          <>
-            <Tag style={{ marginRight: 8 }}>{formatEntityId(data.number)}</Tag>
-            {data.title}
-          </>
-        ) : undefined
-      }
-      extra={
-        <Link to={`/problems/${number}/submit${submitQs}`}>
-          <Button type="primary">{t('problems.submit')}</Button>
-        </Link>
-      }
-    >
-      <Tabs
-        defaultActiveKey="statement"
-        items={[
-          {
-            key: 'statement',
-            label: t('problems.statement'),
-            children: (
-              <>
-                <Tag>
-                  {data?.timeLimitMs}ms / {data ? formatMemoryKiB(data.memoryLimitKb) : ''}
-                </Tag>
-                <MarkdownContent
-                  content={data?.statement}
-                  resolveAssetSrc={(src) =>
-                    resolveProblemAssetSrc(number!, src, contestId) ?? src
-                  }
-                />
-              </>
-            ),
-          },
-          {
-            key: 'discussions',
-            label: t('discussions.tab'),
-            children: number ? <DiscussionTab problemNumber={Number(number)} /> : null,
-          },
-        ]}
-      />
-    </Card>
+    <>
+      <Card
+        loading={isLoading}
+        title={
+          data ? (
+            <>
+              <Tag style={{ marginRight: 8 }}>{formatEntityId(data.number)}</Tag>
+              {data.title}
+            </>
+          ) : undefined
+        }
+        extra={
+          <Link to={`/problems/${number}/submit${submitQs}`}>
+            <Button type="primary">{t('problems.submit')}</Button>
+          </Link>
+        }
+      >
+        <Tabs
+          defaultActiveKey="statement"
+          items={[
+            {
+              key: 'statement',
+              label: t('problems.statement'),
+              children: (
+                <>
+                  <Tag>
+                    {data?.timeLimitMs}ms / {data ? formatMemoryKiB(data.memoryLimitKb) : ''}
+                  </Tag>
+                  <MarkdownContent
+                    content={data?.statement}
+                    resolveAssetSrc={(src) =>
+                      resolveProblemAssetSrc(number!, src, contestId) ?? src
+                    }
+                  />
+                </>
+              ),
+            },
+            {
+              key: 'discussions',
+              label: t('discussions.tab'),
+              children: number ? <DiscussionTab problemNumber={Number(number)} /> : null,
+            },
+          ]}
+        />
+      </Card>
+      <RecommendationSection limit={5} />
+    </>
   );
 }

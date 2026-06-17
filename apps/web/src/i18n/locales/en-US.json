@@ -291,6 +291,13 @@
     "message": "Page not found",
     "backHome": "Back to Home"
   },
+  "recommendations": {
+    "title": "Recommended for You",
+    "reasonDifficulty": "Level up",
+    "reasonWeakTag": "Weak tag: {{tag}}",
+    "reasonExpand": "Practice",
+    "reasonBeginner": "Getting started"
+  },
   "discussions": {
     "tab": "Discussions",
     "newPost": "New Post",

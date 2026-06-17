@@ -34,6 +34,8 @@ export const RedisKeys = {
   sseConnections: (userId: string) => redisKey('sse', 'conns', userId),
   /** SSE 连接 eviction Pub/Sub 频道 */
   sseEvict: () => redisKey('sse', 'evict'),
+  /** 用户推荐结果缓存 */
+  recommendations: (userId: string) => redisKey('recommendations', userId),
 } as const;
 
 /** BullMQ Queue / Worker 共用选项 */

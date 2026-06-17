@@ -8,6 +8,7 @@ import { api } from '../api/client';
 import { formatEntityId } from '../lib/format-entity-id';
 import { ProblemListSkeleton } from '../components/skeleton';
 import { ProblemFilters, type ProblemFilterValues } from '../components/ProblemFilters';
+import { RecommendationSection } from '../components/recommendations/RecommendationSection';
 
 type PassStatus = 'PASSED' | 'FAILED' | 'NONE' | null;
 
@@ -153,18 +154,21 @@ export function ProblemsPage() {
   }
 
   return (
-    <Card title={t('problems.title')}>
-      <ProblemFilters
-        values={filters}
-        onChange={handleFiltersChange}
-        availableTags={allTags}
-      />
-      <Table<ProblemRow>
-        dataSource={data ?? []}
-        rowKey="id"
-        columns={columns}
-        pagination={{ pageSize: 20 }}
-      />
-    </Card>
+    <>
+      <RecommendationSection limit={5} />
+      <Card title={t('problems.title')} style={{ marginTop: 16 }}>
+        <ProblemFilters
+          values={filters}
+          onChange={handleFiltersChange}
+          availableTags={allTags}
+        />
+        <Table<ProblemRow>
+          dataSource={data ?? []}
+          rowKey="id"
+          columns={columns}
+          pagination={{ pageSize: 20 }}
+        />
+      </Card>
+    </>
   );
 }

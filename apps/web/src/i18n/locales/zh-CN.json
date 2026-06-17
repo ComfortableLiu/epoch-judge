@@ -291,6 +291,13 @@
     "message": "页面不存在",
     "backHome": "返回首页"
   },
+  "recommendations": {
+    "title": "为你推荐",
+    "reasonDifficulty": "难度递增",
+    "reasonWeakTag": "薄弱标签: {{tag}}",
+    "reasonExpand": "拓展练习",
+    "reasonBeginner": "入门推荐"
+  },
   "discussions": {
     "tab": "讨论",
     "newPost": "发帖",
