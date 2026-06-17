@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "epoch-judge.fullname" . }}-judge
+  labels:
+    {{- include "epoch-judge.labels" . | nindent 4 }}
+    app.kubernetes.io/component: judge
+spec:
+  replicas: {{ .Values.judge.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "epoch-judge.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: judge
+  template:
+    metadata:
+      labels:
+        {{- include "epoch-judge.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: judge
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: judge
+          image: "{{ .Values.global.imageRegistry }}{{ .Values.image.judge.repository }}:{{ .Values.image.judge.tag }}"
+          imagePullPolicy: {{ .Values.image.judge.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "epoch-judge.fullname" . }}-config
+            - secretRef:
+                name: {{ include "epoch-judge.fullname" . }}-secret
+          env:
+            - name: JUDGE_MOCK
+              value: "false"
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: testcases
+              mountPath: {{ .Values.storage.local.root }}
+          {{- end }}
+          livenessProbe:
+            exec:
+              command:
+                - node
+                - -e
+                - "process.exit(0)"
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.judge.resources | nindent 12 }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: testcases
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-testcases" (include "epoch-judge.fullname" .)) }}
+      {{- end }}

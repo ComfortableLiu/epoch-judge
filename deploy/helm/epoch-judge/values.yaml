@@ -1,0 +1,156 @@
+# -- Global image registry (optional, prepended to all images)
+global:
+  imageRegistry: ""
+
+# -- Docker image configuration
+image:
+  api:
+    repository: epoch-judge/api
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  judge:
+    repository: epoch-judge/judge
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  web:
+    repository: epoch-judge/web
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# --------------------------------------------------------------------------
+# API Server
+# --------------------------------------------------------------------------
+api:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# --------------------------------------------------------------------------
+# Judge Worker
+# --------------------------------------------------------------------------
+judge:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# --------------------------------------------------------------------------
+# Web Frontend
+# --------------------------------------------------------------------------
+web:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+# --------------------------------------------------------------------------
+# Ingress (optional)
+# --------------------------------------------------------------------------
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: epoch-judge.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# --------------------------------------------------------------------------
+# MySQL — external by default
+# --------------------------------------------------------------------------
+mysql:
+  enabled: false
+  host: ""
+  port: 3306
+  user: epoch
+  password: ""
+  database: epoch_judge
+  # -- Set to true to auto-run prisma migrate deploy on startup
+  autoMigrate: true
+
+# --------------------------------------------------------------------------
+# Redis — external by default
+# --------------------------------------------------------------------------
+redis:
+  enabled: false
+  host: ""
+  port: 6379
+  password: ""
+  keyPrefix: "epoch-judge"
+
+# --------------------------------------------------------------------------
+# JWT / Auth
+# --------------------------------------------------------------------------
+auth:
+  jwtSecret: ""
+  jwtExpiresIn: "7d"
+  bcryptRounds: 12
+
+# --------------------------------------------------------------------------
+# Seed Admin (created on first run if DB is empty)
+# --------------------------------------------------------------------------
+seedAdmin:
+  username: admin
+  password: ""
+  email: admin@example.com
+
+# --------------------------------------------------------------------------
+# Storage — testcases
+# --------------------------------------------------------------------------
+storage:
+  type: local  # "local" or "s3"
+  local:
+    root: /app/data/testcases
+  s3:
+    endpoint: ""
+    bucket: ""
+    accessKey: ""
+    secretKey: ""
+    prefix: ""
+    region: ""
+
+# --------------------------------------------------------------------------
+# Persistent Volume for testcases (shared between api & judge)
+# --------------------------------------------------------------------------
+persistence:
+  enabled: true
+  storageClass: ""
+  accessModes:
+    - ReadWriteMany
+  size: 10Gi
+  existingClaim: ""
+
+# --------------------------------------------------------------------------
+# Throttle / Rate Limiting
+# --------------------------------------------------------------------------
+throttle:
+  enabled: true
+  ttl: 60
+  limit: 100
+  authLimit: 10
+  submissionLimit: 5
+  storage: local

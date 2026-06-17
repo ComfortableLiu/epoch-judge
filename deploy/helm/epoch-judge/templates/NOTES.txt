@@ -1,0 +1,26 @@
+Epoch Judge has been deployed!
+
+{{- if .Values.ingress.enabled }}
+
+Access the application at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+
+{{- else }}
+
+Get the application URL by running:
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "epoch-judge.name" . }},app.kubernetes.io/component=web" -o jsonpath="{.items[0].metadata.name}")
+  kubectl port-forward $POD_NAME 8080:80 --namespace {{ .Release.Namespace }}
+
+Then open http://localhost:8080
+
+{{- end }}
+
+Default admin credentials:
+  Username: {{ .Values.seedAdmin.username }}
+  Password: <see seedAdmin.password in your values>
+
+NOTE: It may take a few moments for all pods to be ready.
+Check status with:
+  kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/instance={{ .Release.Name }}"

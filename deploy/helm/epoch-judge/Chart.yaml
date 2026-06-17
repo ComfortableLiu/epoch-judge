@@ -1,0 +1,12 @@
+apiVersion: v2
+name: epoch-judge
+description: A Helm chart for Epoch Judge — online judge platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - online-judge
+  - judge
+  - competitive-programming
+maintainers:
+  - name: epoch-judge
