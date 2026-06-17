@@ -1,4 +1,5 @@
 export const ADMIN_TABS = [
+  'dashboard',
   'problems',
   'contests',
   'announcements',

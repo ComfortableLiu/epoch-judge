@@ -31,6 +31,7 @@
   "admin": {
     "title": "管理后台",
     "tabs": {
+      "dashboard": "数据统计",
       "problems": "题目",
       "contests": "比赛",
       "announcements": "公告",

@@ -36,6 +36,8 @@ export const RedisKeys = {
   sseEvict: () => redisKey('sse', 'evict'),
   /** 用户推荐结果缓存 */
   recommendations: (userId: string) => redisKey('recommendations', userId),
+  /** 平台统计数据缓存 */
+  stats: () => redisKey('stats'),
 } as const;
 
 /** BullMQ Queue / Worker 共用选项 */

@@ -9,6 +9,7 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 import { AuthModule } from './auth/auth.module';
 import { ContestsModule } from './contests/contests.module';
 import { DiscussionsModule } from './discussions/discussions.module';
+import { StatsModule } from './stats/stats.module';
 import { HealthModule } from './health/health.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { MetricsInterceptor } from './metrics/metrics.interceptor';
@@ -48,6 +49,7 @@ import { UsersModule } from './users/users.module';
     TemplatesModule,
     AnnouncementsModule,
     DiscussionsModule,
+    StatsModule,
   ],
   providers: [
     {

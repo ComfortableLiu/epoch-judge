@@ -8,6 +8,7 @@
     "lint": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@ant-design/charts": "^2.6.7",
     "@ant-design/cssinjs": "^1.23.0",
     "@epoch-judge/shared": "workspace:*",
     "@icon-park/react": "^1.4.2",

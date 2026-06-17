@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { AdminAnnouncementPanel } from './admin/AdminAnnouncementPanel';
 import { AdminContestPanel } from './admin/AdminContestPanel';
+import { AdminDashboardPanel } from './admin/AdminDashboardPanel';
 import { AdminProblemPanel } from './admin/AdminProblemPanel';
 import { AdminRejudgePanel } from './admin/AdminRejudgePanel';
 import { AdminUserPanel } from './admin/AdminUserPanel';
@@ -68,6 +69,7 @@ export function AdminPage() {
         onChange={(key) => setTab(parseAdminTab(key))}
         items={ADMIN_TABS.map((key) => {
           const labels: Record<AdminTab, string> = {
+            dashboard: t('admin.tabs.dashboard'),
             problems: t('admin.tabs.problems'),
             contests: t('admin.tabs.contests'),
             announcements: t('admin.tabs.announcements'),
@@ -77,7 +79,9 @@ export function AdminPage() {
             config: t('admin.tabs.config'),
           };
           const children =
-            key === 'users' ? (
+            key === 'dashboard' ? (
+              <AdminDashboardPanel />
+            ) : key === 'users' ? (
               <AdminUserPanel />
             ) : key === 'problems' ? (
               <AdminProblemPanel />

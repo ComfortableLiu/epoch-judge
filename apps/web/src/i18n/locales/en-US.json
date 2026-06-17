@@ -31,6 +31,7 @@
   "admin": {
     "title": "Admin Panel",
     "tabs": {
+      "dashboard": "Dashboard",
       "problems": "Problems",
       "contests": "Contests",
       "announcements": "Announcements",
