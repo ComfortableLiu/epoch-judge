@@ -7,10 +7,12 @@ import { createThrottleConfig } from './common/throttle.config';
 import { AdminModule } from './admin/admin.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { AuthModule } from './auth/auth.module';
+import { ClassesModule } from './classes/classes.module';
 import { ContestsModule } from './contests/contests.module';
 import { DiscussionsModule } from './discussions/discussions.module';
 import { StatsModule } from './stats/stats.module';
 import { HealthModule } from './health/health.module';
+import { HomeworkModule } from './homework/homework.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { MetricsInterceptor } from './metrics/metrics.interceptor';
 import { JudgeModule } from './judge/judge.module';
@@ -39,6 +41,8 @@ import { UsersModule } from './users/users.module';
     HealthModule,
     MetricsModule,
     AuthModule,
+    ClassesModule,
+    HomeworkModule,
     UsersModule,
     ProblemsModule,
     RecommendationsModule,

@@ -15,6 +15,10 @@ import { ProfilePage } from './pages/ProfilePage';
 import { ContestsPage } from './pages/ContestsPage';
 import { ContestDetailPage } from './pages/ContestDetailPage';
 import { AdminPage } from './pages/AdminPage';
+import { ClassManagementPage } from './pages/ClassManagementPage';
+import { JoinClassPage } from './pages/JoinClassPage';
+import { HomeworkListPage } from './pages/HomeworkListPage';
+import { HomeworkStatsPage } from './pages/HomeworkStatsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { AuthGuard } from './components/AuthGuard';
 
@@ -58,6 +62,38 @@ export function App() {
               />
               <Route path="/contests" element={<ContestsPage />} />
               <Route path="/contests/:number" element={<ContestDetailPage />} />
+              <Route
+                path="/classes"
+                element={
+                  <AuthGuard>
+                    <ClassManagementPage />
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/classes/join"
+                element={
+                  <AuthGuard>
+                    <JoinClassPage />
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/homework"
+                element={
+                  <AuthGuard>
+                    <HomeworkListPage />
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/homework/:id/stats"
+                element={
+                  <AuthGuard>
+                    <HomeworkStatsPage />
+                  </AuthGuard>
+                }
+              />
               <Route
                 path="/settings"
                 element={

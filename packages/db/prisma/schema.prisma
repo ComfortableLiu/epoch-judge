@@ -83,6 +83,7 @@ model User {
   preferredLanguage  Language?  @map("preferred_language")
   preferredJudgeMode JudgeMode? @map("preferred_judge_mode")
   mustResetPassword  Boolean    @default(false) @map("must_reset_password")
+  isTeacher         Boolean    @default(false) @map("is_teacher")
   createdAt          DateTime   @default(now()) @map("created_at")
   updatedAt          DateTime   @updatedAt @map("updated_at")
 
@@ -94,6 +95,8 @@ model User {
   discussions           Discussion[]
   discussionReplies     DiscussionReply[]
   discussionVotes       DiscussionVote[]
+  teacherClasses        Class[]              @relation("ClassTeacher")
+  classMemberships      ClassMember[]
 
   @@map("users")
 }
@@ -117,6 +120,7 @@ model Problem {
   assets           ProblemAsset[]
   submissions      Submission[]
   contestProblems  ContestProblem[]
+  homeworkProblems HomeworkProblem[]
   discussions      Discussion[]
 
   @@map("problems")
@@ -343,4 +347,62 @@ model DiscussionVote {
   @@unique([userId, discussionId])
   @@unique([userId, replyId])
   @@map("discussion_votes")
+}
+
+model Class {
+  id             String   @id @default(cuid())
+  name           String
+  description    String   @default("")
+  teacherId      String   @map("teacher_id")
+  invitationCode String   @unique @map("invitation_code")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  teacher    User            @relation("ClassTeacher", fields: [teacherId], references: [id])
+  members    ClassMember[]
+  homeworks  Homework[]
+
+  @@map("classes")
+}
+
+model ClassMember {
+  id       String   @id @default(cuid())
+  classId  String   @map("class_id")
+  userId   String   @map("user_id")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([classId, userId])
+  @@map("class_members")
+}
+
+model Homework {
+  id          String    @id @default(cuid())
+  classId     String    @map("class_id")
+  title       String
+  description String    @default("") @db.Text
+  deadline    DateTime
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  class    Class             @relation(fields: [classId], references: [id], onDelete: Cascade)
+  problems HomeworkProblem[]
+
+  @@index([classId, deadline])
+  @@map("homeworks")
+}
+
+model HomeworkProblem {
+  id         String @id @default(cuid())
+  homeworkId String @map("homework_id")
+  problemId  String @map("problem_id")
+  ordinal    Int
+
+  homework Homework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id])
+
+  @@unique([homeworkId, problemId])
+  @@map("homework_problems")
 }

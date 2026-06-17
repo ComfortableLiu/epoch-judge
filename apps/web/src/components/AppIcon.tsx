@@ -1,5 +1,5 @@
 import type { IconProps } from '@icon-park/react/lib/runtime';
-import { Home, BookOpen, Trophy, List, Setting, User, Login, Logout } from '@icon-park/react';
+import { Home, BookOpen, Trophy, List, Setting, User, Login, Logout, People, Bookmark } from '@icon-park/react';
 
 const map = {
   home: Home,
@@ -10,6 +10,8 @@ const map = {
   user: User,
   login: Login,
   logout: Logout,
+  classes: People,
+  homework: Bookmark,
 } as const;
 
 export type AppIconName = keyof typeof map;

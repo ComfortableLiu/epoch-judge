@@ -29,6 +29,16 @@ export function AppLayout() {
             label: t('nav.submissions'),
             icon: <AppIcon name="submissions" />,
           },
+          {
+            key: '/classes',
+            label: t('nav.classes'),
+            icon: <AppIcon name="classes" />,
+          },
+          {
+            key: '/homework',
+            label: t('nav.homework'),
+            icon: <AppIcon name="homework" />,
+          },
         ]
       : []),
     { key: '/settings', label: t('nav.settings'), icon: <AppIcon name="settings" /> },
