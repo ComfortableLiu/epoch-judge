@@ -227,6 +227,7 @@
   },
   "problems": {
     "title": "Problems",
+    "statement": "Statement",
     "submit": "Submit",
     "colId": "ID",
     "colTitle": "Problem",
@@ -289,5 +290,26 @@
   "notFound": {
     "message": "Page not found",
     "backHome": "Back to Home"
+  },
+  "discussions": {
+    "tab": "Discussions",
+    "newPost": "New Post",
+    "postType": "Type",
+    "question": "Question",
+    "solution": "Solution",
+    "titleLabel": "Title",
+    "titleRequired": "Please enter a title",
+    "titlePlaceholder": "Enter post title",
+    "contentLabel": "Content",
+    "contentRequired": "Please enter content",
+    "contentPlaceholder": "Supports Markdown format. Use ``` for code blocks",
+    "submit": "Post",
+    "createSuccess": "Post created",
+    "sortLatest": "Latest",
+    "sortPopular": "Popular",
+    "pinned": "Pinned",
+    "reply": "Reply",
+    "replyPlaceholder": "Write your reply...",
+    "replySuccess": "Reply posted"
   }
 }

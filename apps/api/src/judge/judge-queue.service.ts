@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   getBullMqQueueOptions,
   getRedisConnectionOptions,
@@ -6,13 +6,14 @@ import {
 } from '@epoch-judge/redis';
 import type { JudgeTaskPayload } from '@epoch-judge/shared';
 import { Queue } from 'bullmq';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
-export class JudgeQueueService {
+export class JudgeQueueService implements OnModuleInit {
   private readonly logger = new Logger(JudgeQueueService.name);
   private readonly queue: Queue<JudgeTaskPayload>;
 
-  constructor() {
+  constructor(private readonly metrics: MetricsService) {
     const queueName = RedisKeys.judgeQueueName();
     const prefix = RedisKeys.judgeQueuePrefix();
     this.queue = new Queue<JudgeTaskPayload>(queueName, {
@@ -20,6 +21,21 @@ export class JudgeQueueService {
       ...getBullMqQueueOptions(),
     });
     this.logger.log(`Judge queue ready name=${queueName} prefix=${prefix}`);
+  }
+
+  onModuleInit() {
+    // Poll queue depth every 10 seconds
+    setInterval(() => this.refreshQueueDepth(), 10_000);
+    this.refreshQueueDepth();
+  }
+
+  private async refreshQueueDepth() {
+    try {
+      const counts = await this.queue.getJobCounts('waiting', 'delayed');
+      this.metrics.judgeQueueDepth.set(counts.waiting + counts.delayed);
+    } catch {
+      // ignore transient errors
+    }
   }
 
   async enqueue(task: JudgeTaskPayload, jobId?: string) {

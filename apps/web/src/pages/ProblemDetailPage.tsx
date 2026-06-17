@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { Button, Card, Tag } from 'antd';
+import { Button, Card, Tabs, Tag } from 'antd';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { MarkdownContent } from '../components/MarkdownContent';
+import { DiscussionTab } from '../components/discussions/DiscussionTab';
 import { useBreadcrumbLabel } from '../contexts/BreadcrumbContext';
 import { formatEntityId } from '../lib/format-entity-id';
 import { formatMemoryKiB } from '../lib/format-memory';
@@ -54,14 +55,32 @@ export function ProblemDetailPage() {
         </Link>
       }
     >
-      <Tag>
-        {data?.timeLimitMs}ms / {data ? formatMemoryKiB(data.memoryLimitKb) : ''}
-      </Tag>
-      <MarkdownContent
-        content={data?.statement}
-        resolveAssetSrc={(src) =>
-          resolveProblemAssetSrc(number!, src, contestId) ?? src
-        }
+      <Tabs
+        defaultActiveKey="statement"
+        items={[
+          {
+            key: 'statement',
+            label: t('problems.statement'),
+            children: (
+              <>
+                <Tag>
+                  {data?.timeLimitMs}ms / {data ? formatMemoryKiB(data.memoryLimitKb) : ''}
+                </Tag>
+                <MarkdownContent
+                  content={data?.statement}
+                  resolveAssetSrc={(src) =>
+                    resolveProblemAssetSrc(number!, src, contestId) ?? src
+                  }
+                />
+              </>
+            ),
+          },
+          {
+            key: 'discussions',
+            label: t('discussions.tab'),
+            children: number ? <DiscussionTab problemNumber={Number(number)} /> : null,
+          },
+        ]}
       />
     </Card>
   );

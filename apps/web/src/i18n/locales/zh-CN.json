@@ -227,6 +227,7 @@
   },
   "problems": {
     "title": "题库",
+    "statement": "题目描述",
     "submit": "提交代码",
     "colId": "ID",
     "colTitle": "题目",
@@ -289,5 +290,26 @@
   "notFound": {
     "message": "页面不存在",
     "backHome": "返回首页"
+  },
+  "discussions": {
+    "tab": "讨论",
+    "newPost": "发帖",
+    "postType": "类型",
+    "question": "提问",
+    "solution": "题解",
+    "titleLabel": "标题",
+    "titleRequired": "请输入标题",
+    "titlePlaceholder": "输入帖子标题",
+    "contentLabel": "内容",
+    "contentRequired": "请输入内容",
+    "contentPlaceholder": "支持 Markdown 格式，代码块请使用 ``` 包裹",
+    "submit": "发布",
+    "createSuccess": "发帖成功",
+    "sortLatest": "最新",
+    "sortPopular": "热门",
+    "pinned": "置顶",
+    "reply": "回复",
+    "replyPlaceholder": "写下你的回复...",
+    "replySuccess": "回复成功"
   }
 }

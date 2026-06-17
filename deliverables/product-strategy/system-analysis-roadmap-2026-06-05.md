@@ -327,3 +327,50 @@
 ---
 
 > 本报告由产品战略团队 AI 协作生成，重要决策请由产品负责人审定。
+
+---
+
+## 六、迭代进度跟踪
+
+**进度更新**（2026-06-08）：第一阶段和第二阶段全部完成，进入第三阶段规划
+
+### 第一阶段：安全基线与质量保障 ✅
+
+| 任务 | 状态 | 归档名 |
+|------|------|--------|
+| T1.1 API 限流（@nestjs/throttler） | ✅ 已完成 | api-rate-limiting |
+| T1.2 比赛密码哈希存储（bcrypt） | ✅ 已完成 | contest-password-hashing |
+| T1.3 安全扫描增强（AST 级检测） | ✅ 已完成 | security-scanner-enhancement |
+| T1.4 API 核心模块单元测试 | ✅ 已完成 | api-unit-tests |
+| T1.5 CORS 配置 | ✅ 已完成 | cors-configuration |
+| T1.6 SSE 连接限制 | ✅ 已完成 | sse-connection-limit |
+| T1.7 默认凭证安全提示 | ✅ 已完成 | default-credentials-warning |
+
+### 第二阶段：体验补全与功能完善 ✅
+
+| 任务 | 状态 | 归档名 |
+|------|------|--------|
+| T2.1 ACM 榜单罚时修复 | ✅ 已完成 | fix-acm-penalty-calculation |
+| T2.2 前端 i18n 补全 | ✅ 已完成 | extract-hardcoded-chinese-i18n |
+| T2.3 题库搜索/标签筛选 | ✅ 已完成 | add-problem-search-filters |
+| T2.4 评测结果详情（逐测例展示） | ✅ 已完成 | show-testcase-results |
+| T2.5 提交列表分页 | ✅ 已完成 | add-submission-list-pagination |
+| T2.6 公告系统（站内 Banner） | ✅ 已完成 | add-site-announcements |
+| ~~T2.7 Monaco Editor 懒加载~~ | ❌ 已取消 | 伪需求：@monaco-editor/react 已通过 CDN 加载 |
+| T2.8 404 页面 & Loading 骨架屏 | ✅ 已完成 | add-404-page-and-skeleton-loading |
+| T2.9 Worker 缓存 LRU 淘汰 | ✅ 已完成 | judge-worker-lru-cache |
+
+### 第三阶段：差异化功能与生态建设 🔲 待启动
+
+| 任务 | 优先级 | 预估工时 | 状态 |
+|------|--------|---------|------|
+| T3.1 用户讨论/题解系统 | P1 | 5d | 🔲 待启动 |
+| T3.2 作业/班级管理系统 | P1 | 8d | 🔲 待启动 |
+| T3.3 题目推荐引擎 | P2 | 5d | 🔲 待启动 |
+| T3.4 统计仪表盘 | P2 | 3d | 🔲 待启动 |
+| T3.5 Prometheus 指标端点 | P2 | 1d | 🔲 待启动 |
+| T3.6 新语言扩展（Rust/Go） | P2 | 3d | 🔲 待启动 |
+| T3.7 API 文档完善 | P2 | 2d | 🔲 待启动 |
+| T3.8 面向用户的操作手册 | P2 | 3d | 🔲 待启动 |
+| T3.9 Helm Chart（K8s 部署） | P2 | 3d | 🔲 待启动 |
+| T3.10 GitHub Actions CI/CD | P2 | 2d | 🔲 待启动 |

@@ -65,6 +65,11 @@ enum ContestVisibility {
   PRIVATE
 }
 
+enum DiscussionType {
+  QUESTION
+  SOLUTION
+}
+
 model User {
   id                 String     @id @default(cuid())
   username           String     @unique
@@ -83,6 +88,9 @@ model User {
   createdProblems       Problem[]             @relation("ProblemCreator")
   createdContests       Contest[]             @relation("ContestCreator")
   createdAnnouncements  Announcement[]
+  discussions           Discussion[]
+  discussionReplies     DiscussionReply[]
+  discussionVotes       DiscussionVote[]
 
   @@map("users")
 }
@@ -106,6 +114,7 @@ model Problem {
   assets           ProblemAsset[]
   submissions      Submission[]
   contestProblems  ContestProblem[]
+  discussions      Discussion[]
 
   @@map("problems")
 }
@@ -278,4 +287,57 @@ model SystemConfig {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("system_config")
+}
+
+model Discussion {
+  id        String         @id @default(cuid())
+  problemId String         @map("problem_id")
+  userId    String         @map("user_id")
+  type      DiscussionType
+  title     String
+  content   String         @db.Text
+  isPinned  Boolean        @default(false) @map("is_pinned")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  problem  Problem           @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user     User              @relation(fields: [userId], references: [id])
+  replies  DiscussionReply[]
+  votes    DiscussionVote[]
+
+  @@index([problemId, isPinned, createdAt])
+  @@index([problemId, createdAt])
+  @@map("discussions")
+}
+
+model DiscussionReply {
+  id           String   @id @default(cuid())
+  discussionId String   @map("discussion_id")
+  userId       String   @map("user_id")
+  content      String   @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
+  votes      DiscussionVote[]
+
+  @@index([discussionId, createdAt])
+  @@map("discussion_replies")
+}
+
+model DiscussionVote {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  discussionId String?  @map("discussion_id")
+  replyId      String?  @map("reply_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user       User        @relation(fields: [userId], references: [id])
+  discussion Discussion? @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  reply      DiscussionReply? @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, discussionId])
+  @@unique([userId, replyId])
+  @@map("discussion_votes")
 }
